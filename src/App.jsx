@@ -148,7 +148,7 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-50" />;
 };
 
-// --- 磁吸流光標題組件 ---
+// --- 磁吸互動標題組件 ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -316,7 +316,10 @@ const App = () => {
     }
   ];
 
-  const scrollTo = (id) => document.getElementById(id)?.scrollIntoView({ behavior: 'smooth' });
+  const scrollTo = (id) => {
+    const el = document.getElementById(id);
+    if (el) el.scrollIntoView({ behavior: 'smooth' });
+  };
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
@@ -530,7 +533,7 @@ const App = () => {
               <span className="text-xl text-slate-800 font-black flex items-center gap-2"><Globe size={18} className="text-[#FF8C42]" />Xizhi District</span>
             </div>
           </div>
-          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.7 FINAL</div>
+          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.8 FINAL</div>
         </div>
       </footer>
     </div>
