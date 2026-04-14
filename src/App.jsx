@@ -22,7 +22,8 @@ import {
   ExternalLink,
   Figma,
   Navigation,
-  Zap
+  Zap,
+  Briefcase
 } from 'lucide-react';
 
 // --- 核心組件：優雅對焦導航滑鼠 ---
@@ -193,7 +194,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件：連結妳的真人照片 ---
+// --- 頭像組件：妳的真人照 ---
 const ProfilePhoto = ({ mouse }) => {
   const [center, setCenter] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -266,6 +267,7 @@ const ProfilePhoto = ({ mouse }) => {
   );
 };
 
+// --- 主程式組件 ---
 const App = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const { scrollYProgress } = useScroll();
@@ -496,7 +498,9 @@ const App = () => {
               { title: '服務設計思維', icon: <Cpu size={32} />, desc: '運用 User-Centered 方法論，將用戶痛點轉化為 Stunning 的解決方案。' }
             ].map((item, i) => (
               <div key={i} className="p-10 border border-slate-100 rounded-[3rem] bg-slate-50/50 hover:bg-white hover:shadow-2xl transition-all duration-500 group relative overflow-hidden transform hover:-translate-y-2 h-full min-h-[220px]">
-                <div className="mb-6 text-slate-300 group-hover:text-[#FF8C42] transition-all duration-500">{item.icon}</div>
+                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500 relative z-10 w-fit">
+                  {item.icon}
+                </div>
                 <h4 className="text-xl font-black mb-4 text-slate-800">{item.title}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed font-medium">{item.desc}</p>
                 <div className="absolute bottom-0 left-0 w-0 h-2 bg-[#FF8C42] group-hover:w-full transition-all duration-500"></div>
@@ -533,7 +537,7 @@ const App = () => {
               <span className="text-xl text-slate-800 font-black flex items-center gap-2"><Globe size={18} className="text-[#FF8C42]" />Xizhi District</span>
             </div>
           </div>
-          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.8 FINAL</div>
+          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.9 FINAL</div>
         </div>
       </footer>
     </div>
