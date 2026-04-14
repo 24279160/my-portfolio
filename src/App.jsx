@@ -148,7 +148,7 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-50" />;
 };
 
-// --- 磁吸互動標題組件 ---
+// --- 磁吸流光標題組件 ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -193,7 +193,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件：使用妳的真人照片 ---
+// --- 頭像組件：連結妳的真人照片 ---
 const ProfilePhoto = ({ mouse }) => {
   const [center, setCenter] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -218,7 +218,6 @@ const ProfilePhoto = ({ mouse }) => {
   const pullX = isNear ? Math.max(-8, Math.min(8, dx * 0.03)) : 0;
   const pullY = isNear ? Math.max(-8, Math.min(8, dy * 0.03)) : 0;
 
-  // 使用妳的 Google Drive 直連連結
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
   const floatTags = [
@@ -279,9 +278,9 @@ const App = () => {
   }, []);
 
   const impactModules = [
-    { label: "Search Success", value: "+20%", icon: Zap, desc: "規劃自然語言搜尋（Deep Search）介面與功能，有效解決搜尋摩擦。" },
-    { label: "Conversion Rate", value: "+10-15%", icon: TrendingUp, desc: "與高層規劃商品化策略 Landing Page，大幅驅動內容銷售轉換。" },
-    { label: "XR System", value: "$40M", icon: Cpu, desc: "主導 0→1 大型政府 XR 訓練專案落地，精準管理複雜技術規格驗收。" }
+    { label: "Search Success", value: "+20%", icon: Zap, desc: "規劃自然語言搜尋（Deep Search）介面與功能，提升搜尋匹配度。" },
+    { label: "Conversion Rate", value: "+10-15%", icon: TrendingUp, desc: "與高層規劃商品化策略 Landing Page，有效帶動銷售轉換。" },
+    { label: "XR System", value: "$40M", icon: Cpu, desc: "主導 0→1 大型政府 XR 訓練專案落地，管理跨部門開發規格。" }
   ];
 
   const projects = [
@@ -378,7 +377,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Career Path */}
       <section id="experience" className="py-24 px-6 md:px-24 relative z-10 bg-slate-50/50">
         <div className="max-w-5xl mx-auto">
           <div className="flex items-center gap-6 mb-16">
@@ -418,7 +416,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Major Missions */}
       <section id="projects" className="py-24 px-6 md:px-24 relative z-10">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-6 mb-20">
@@ -460,7 +457,6 @@ const App = () => {
                     <div className="flex gap-2 flex-wrap">
                       {project.skills.map(s => <span key={s} className="text-[10px] font-black px-4 py-2 bg-white border border-slate-200 rounded-full text-slate-400 uppercase tracking-widest">{s}</span>)}
                     </div>
-                    {/* CTA Buttons */}
                     <div className="flex items-center gap-3 flex-wrap">
                       {project.ctas.map((cta, i) => (
                         <a 
@@ -482,7 +478,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Strategic Arsenal */}
       <section id="expertise" className="py-32 px-6 md:px-24 bg-white relative z-10 border-t border-slate-50">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-6 mb-20">
@@ -508,7 +503,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Footer */}
       <footer id="about" className="py-32 px-6 bg-white text-center border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
           <div className="w-16 h-16 bg-slate-900 rounded-2xl mx-auto mb-10 flex items-center justify-center text-white font-black text-xl shadow-2xl transition-transform hover:scale-110 pointer-events-auto cursor-pointer">
@@ -536,7 +530,7 @@ const App = () => {
               <span className="text-xl text-slate-800 font-black flex items-center gap-2"><Globe size={18} className="text-[#FF8C42]" />Xizhi District</span>
             </div>
           </div>
-          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.6 FINAL</div>
+          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.7 FINAL</div>
         </div>
       </footer>
     </div>
