@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useTransform, useSpring, useInView } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { 
   Target, 
   Layers, 
@@ -19,7 +19,9 @@ import {
   ClipboardList,
   BarChart3,
   Globe2,
-  ArrowRight
+  ArrowRight,
+  Download,
+  FileText
 } from 'lucide-react';
 
 // --- 核心組件：優雅導航滑鼠 ---
@@ -28,7 +30,7 @@ const CustomCursor = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  const springConfig = { damping: 28, stiffness: 220, mass: 0.5 };
+  const springConfig = { damping: 35, stiffness: 280, mass: 0.5 };
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
 
@@ -68,8 +70,8 @@ const CustomCursor = () => {
         style={{ x: cursorX, y: cursorY, translateX: '-50%', translateY: '-50%' }}
         animate={{ 
           rotate: isHovering ? 90 : 0,
-          scale: isHovering ? 1.5 : 1,
-          opacity: isHovering ? 0.8 : 0.3
+          scale: isHovering ? 1.4 : 1,
+          opacity: isHovering ? 0.7 : 0.25
         }}
       >
         <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-current rounded-tl-sm" />
@@ -81,7 +83,7 @@ const CustomCursor = () => {
   );
 };
 
-// --- 背景組件：靜謐脈動背景 ---
+// --- 背景組件：神經脈動背景 (極致絲滑版) ---
 const NeuralMeshBackground = ({ mouse }) => {
   const canvasRef = useRef(null);
   const anchors = useMemo(() => [
@@ -93,7 +95,7 @@ const NeuralMeshBackground = ({ mouse }) => {
     const canvas = canvasRef.current;
     if (!canvas) return;
     const ctx = canvas.getContext('2d');
-    let particles = Array.from({ length: 60 }).map(() => ({
+    let particles = Array.from({ length: 80 }).map(() => ({
       x: Math.random() * window.innerWidth,
       y: Math.random() * window.innerHeight,
       vx: 0, vy: 0,
@@ -102,7 +104,7 @@ const NeuralMeshBackground = ({ mouse }) => {
     }));
     let animationId;
     const animate = () => {
-      ctx.fillStyle = 'rgba(255, 255, 255, 0.25)'; 
+      ctx.fillStyle = 'rgba(255, 255, 255, 0.3)'; 
       ctx.fillRect(0, 0, canvas.width, canvas.height);
       particles.forEach((p, i) => {
         const anchor = anchors[p.targetIdx];
@@ -113,14 +115,22 @@ const NeuralMeshBackground = ({ mouse }) => {
         const dx = mouse.x - p.x;
         const dy = mouse.y - p.y;
         const dist = Math.sqrt(dx*dx + dy*dy);
-        if (dist < 300) {
-          const force = (300 - dist) / 300;
+        if (dist < 380) {
+          const force = (380 - dist) / 380;
           p.vx += dx * 0.00015 * force;
           p.vy += dy * 0.00015 * force;
+          particles.slice(i + 1, i + 12).forEach(p2 => {
+            const d2 = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
+            if (d2 < 110) {
+              ctx.strokeStyle = `rgba(255, 140, 66, ${0.15 * (1 - d2/110) * (1 - dist/380)})`;
+              ctx.lineWidth = 0.5;
+              ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
+            }
+          });
         }
-        p.vx *= 0.96; p.vy *= 0.96;
+        p.vx *= 0.94; p.vy *= 0.94;
         p.x += p.vx; p.y += p.vy;
-        ctx.fillStyle = dist < 250 ? 'rgba(255, 140, 66, 0.25)' : 'rgba(255, 140, 66, 0.12)';
+        ctx.fillStyle = dist < 250 ? 'rgba(255, 140, 66, 0.3)' : 'rgba(255, 140, 66, 0.15)';
         ctx.beginPath(); ctx.arc(p.x, p.y, p.size, 0, Math.PI * 2); ctx.fill();
       });
       animationId = requestAnimationFrame(animate);
@@ -134,7 +144,7 @@ const NeuralMeshBackground = ({ mouse }) => {
     return () => { window.removeEventListener('resize', handleResize); cancelAnimationFrame(animationId); };
   }, [mouse, anchors]);
 
-  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-50" />;
+  return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
 // --- 互動卡片容器 ---
@@ -147,8 +157,8 @@ const TiltCard = ({ children, className = "" }) => {
     const y = e.clientY - box.top;
     const centerX = box.width / 2;
     const centerY = box.height / 2;
-    const rotateX = (y - centerY) / 35;
-    const rotateY = (centerX - x) / 35;
+    const rotateX = (y - centerY) / 55;
+    const rotateY = (centerX - x) / 55;
     setRotate({ x: rotateX, y: rotateY });
   };
   const onMouseLeave = () => setRotate({ x: 0, y: 0 });
@@ -157,8 +167,8 @@ const TiltCard = ({ children, className = "" }) => {
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       animate={{ rotateX: rotate.x, rotateY: rotate.y }}
-      transition={{ type: 'spring', stiffness: 300, damping: 20 }}
-      style={{ perspective: '1000px' }}
+      transition={{ type: 'spring', stiffness: 180, damping: 25 }}
+      style={{ perspective: '1200px' }}
       className={className}
     >
       {children}
@@ -180,8 +190,8 @@ const MagneticHeadline = ({ mouse }) => {
       const dx = mouse.x - h1CenterX;
       const dy = mouse.y - h1CenterY;
       setOffset({
-        x: Math.max(-12, Math.min(12, dx * 0.08)),
-        y: Math.max(-8, Math.min(8, dy * 0.08))
+        x: Math.max(-10, Math.min(10, dx * 0.05)),
+        y: Math.max(-6, Math.min(6, dy * 0.05))
       });
     } else {
       setOffset({ x: 0, y: 0 });
@@ -195,34 +205,34 @@ const MagneticHeadline = ({ mouse }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         animate={{ x: offset.x, y: offset.y }}
-        transition={{ type: 'spring', stiffness: 220, damping: 25 }}
+        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
         className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300"
         style={{ 
           color: isHovered ? '#FF8C42' : '#0f172a',
-          textShadow: isHovered ? '0 0 30px rgba(255, 140, 66, 0.3)' : 'none'
+          textShadow: isHovered ? '0 0 30px rgba(255, 140, 66, 0.2)' : 'none'
         }}
       >
         HI I AM <span className="italic">REN.</span>
       </motion.h1>
-      <p className="text-xl md:text-2xl font-black text-slate-400 mt-1 tracking-tight pointer-events-none opacity-100 max-w-2xl leading-tight">
-        在不確定中做出合理決策，並持續優化
+      <p className="text-xl md:text-2xl font-black text-slate-400 mt-2 tracking-tight pointer-events-none opacity-100 max-w-2xl leading-tight">
+        在不確定中做出合理決策，並持續優化產品價值
       </p>
     </div>
   );
 };
 
-// --- 頭像組件 ---
+// --- 頭像組件 (優化絲滑互動) ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
   const floatTags = [
-    { text: "產品策略", top: "-4%", left: "-6%", delay: 0 },
-    { text: "數位內容規劃", top: "18%", right: "-12%", delay: 0.1 },
-    { text: "專案溝通/整合", bottom: "12%", left: "-18%", delay: 0.2 },
-    { text: "UIUX 設計", bottom: "-6%", right: "-2%", delay: 0.15 },
-    { text: "SEO/數據分析", top: "45%", left: "-22%", delay: 0.25 },
-    { text: "商業化包裝 (Package)", bottom: "40%", right: "-25%", delay: 0.3 }
+    { text: "產品策略規劃", top: "-4%", left: "-6%", delay: 0 },
+    { text: "數位內容營運", top: "18%", right: "-12%", delay: 0.1 },
+    { text: "專案協同管理", bottom: "12%", left: "-18%", delay: 0.2 },
+    { text: "UIUX 體驗設計", bottom: "-6%", right: "-2%", delay: 0.15 },
+    { text: "SEO 與數據分析", top: "45%", left: "-22%", delay: 0.25 },
+    { text: "商業化 Package 策略", bottom: "40%", right: "-25%", delay: 0.3 }
   ];
 
   return (
@@ -232,18 +242,22 @@ const ProfilePhoto = ({ mouse }) => {
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
           whileHover={{ 
-            scale: 1.05,
-            rotateY: 10,
-            rotateX: -8
+            scale: 1.04,
+            rotateY: 6,
+            rotateX: -4
           }}
-          transition={{ type: 'spring', stiffness: 300, damping: 15 }}
+          transition={{ 
+            type: 'spring', 
+            stiffness: 100, 
+            damping: 20 
+          }}
           className="relative cursor-none z-10"
         >
-          <div className="relative w-64 h-64 md:w-[19rem] md:h-[19rem] rounded-[3.5rem] overflow-hidden shadow-[0_15px_40px_rgba(0,0,0,0.12)] border-[6px] border-white bg-slate-100 transition-all duration-500">
+          <div className="relative w-64 h-64 md:w-[19rem] md:h-[19rem] rounded-[3.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[6px] border-white bg-slate-100">
             <img 
               src={avatarUrl} 
               alt="Jen-Hao Cheng Profile" 
-              className={`w-full h-full object-cover transition-transform duration-700 ${isHovered ? 'scale-110' : ''}`}
+              className={`w-full h-full object-cover transition-transform duration-[1200ms] cubic-bezier(0.23, 1, 0.32, 1) ${isHovered ? 'scale-108' : ''}`}
             />
           </div>
 
@@ -251,11 +265,11 @@ const ProfilePhoto = ({ mouse }) => {
             {isHovered && floatTags.map((tag, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, scale: 0.7, y: 15 }}
+                initial={{ opacity: 0, scale: 0.8, y: 15 }}
                 animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.7, y: 10 }}
-                transition={{ duration: 0.3, delay: tag.delay }}
-                className="absolute whitespace-nowrap bg-slate-950/90 backdrop-blur-md border border-white/20 text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest z-30 shadow-xl"
+                exit={{ opacity: 0, scale: 0.8, y: 10 }}
+                transition={{ duration: 0.5, delay: tag.delay, ease: "circOut" }}
+                className="absolute whitespace-nowrap bg-slate-900/80 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-full text-[10px] font-bold tracking-widest z-30 shadow-xl"
                 style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right, borderLeft: `3px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
               >
                 {tag.text}
@@ -271,7 +285,7 @@ const ProfilePhoto = ({ mouse }) => {
 // --- 主程式組件 ---
 const App = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
-  const [contentStoreIndex, setContentStoreIndex] = useState(0);
+  const [hoveredContact, setHoveredContact] = useState(null);
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
   
@@ -281,25 +295,26 @@ const App = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, []);
 
-  const impactModules = [
+  const impactMetrics = [
     { label: "Search Success", value: "+20%", icon: Zap, desc: "重構搜尋邏輯與 IA，提升搜尋匹配效率。" },
     { label: "Operational Growth", value: "+10-25%", icon: TrendingUp, desc: "規劃核心營運模組，提升內容發現與轉換。" },
     { label: "System Delivery", value: "$40M", icon: Cpu, desc: "主導大型政府 XR 專案落地，管理開發與驗收。" }
   ];
 
   const reallusionBullets = [
-    { icon: <Target className="text-orange-500" size={16} />, text: "負責歐美電商平台 (ActorCore / Content Store) 產品策略與商業化規劃。" },
-    { icon: <Search className="text-orange-500" size={16} />, text: "分析長尾搜尋行為，定義 Deep Search 規格，提升成功率 20%。" },
-    { icon: <Globe2 className="text-orange-500" size={16} />, text: "規劃平台核心功能，提升內容可發現性與效率約 15–25%。" },
-    { icon: <Package className="text-orange-500" size={16} />, text: "建立商品化策略與 Package 組合，優化產品結構與轉換流程。" },
-    { icon: <BarChart3 className="text-orange-500" size={16} />, text: "設計營運模組支援行銷活動，驅動流量轉換 (CTR 提升 10–15%)。" }
+    { icon: <Target className="text-orange-500" size={16} />, text: "負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。" },
+    { icon: <Search className="text-orange-500" size={16} />, text: "分析使用者長尾搜尋行為 (Sentence vs Keyword)，定義 Deep Search 產品規格。提升搜尋成功率 20% 並降低搜尋摩擦。" },
+    { icon: <Globe2 className="text-orange-500" size={16} />, text: "規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 15–25%。" },
+    { icon: <Package className="text-orange-500" size={16} />, text: "建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。" },
+    { icon: <BarChart3 className="text-orange-500" size={16} />, text: "設計營運模組（Promotion / Offer Page / Tag），支援行銷活動與流量轉換 (CTR 提升約 10–15%)。" },
+    { icon: <Users className="text-orange-500" size={16} />, text: "與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。" }
   ];
 
   const globalPowerBullets = [
-    { icon: <Monitor className="text-teal-500" size={16} />, text: "參與 XR 模擬訓練系統從 0→1 開發與落地規劃。" },
+    { icon: <Monitor className="text-teal-500" size={16} />, text: "參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。" },
     { icon: <LayoutTemplate className="text-teal-500" size={16} />, text: "規劃多端產品架構，設計完整使用流程與互動機制。" },
     { icon: <ClipboardList className="text-teal-500" size={16} />, text: "撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。" },
-    { icon: <ShieldCheck className="text-teal-500" size={16} />, text: "主導 4,000 萬級警署 XR 專案執行與驗收標準制定。" }
+    { icon: <ShieldCheck className="text-teal-500" size={16} />, text: "參與政府專案執行，確保產品符合實際應用場景與驗收標準。" }
   ];
 
   const projects = [
@@ -310,30 +325,27 @@ const App = () => {
       results: ['搜尋成功率提升 20%', '優化商城推薦內容結構'],
       img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7", 
       icon: Search,
-      cta: "Explore IA Logic",
+      cta: "查看 IA 邏輯詳情",
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
     },
     {
       id: 'content-store',
-      title: 'Content Store 商業化包裝',
+      title: 'Content Store 商業化包裝策略',
       desc: '負責歐美平台 Package Strategy。設計營運模組與 Promotion Page，結合 Theme/Bundle 模型有效提升 CTR 與商業轉換。',
       results: ['CTR 提升約 10–15%', '客製化 Page 驅動流量轉換'],
-      imgs: [
-        "https://lh3.googleusercontent.com/d/1XpLnEY9YGr8Gueb5puhDOukYCKD5qENk", 
-        "https://lh3.googleusercontent.com/d/1gDk9yxzt3LstIf14xt9HznBAiPlZL6o6"
-      ],
+      img: "https://lh3.googleusercontent.com/d/1onA8n6Ydj4qu3SYtZi57ciEXgktuxICE", 
       icon: Package,
-      cta: "View Package Strategy",
+      cta: "查看 Package 策略",
       skills: ['Package Strategy', 'Commercialization', 'CTR Growth']
     },
     {
       id: 'police-xr',
       title: '警署 XR 模擬訓練系統 (0→1)',
-      desc: '統籌 4,000 萬級標案。協作「Asian action movie stunt team」錄製 Stunts，打造具備 Stunning visual experiences 的場景驗收，包含「people being blown away」細節。',
+      desc: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備 Stunning visual experiences 的場景驗收，包含 people being blown away 細節。',
       results: ['完成 4,000 萬標案驗收', '成功導入全台教學體系'],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
-      cta: "Explore System Flow",
+      cta: "查看系統流程規劃",
       skills: ['Prioritization', 'Asian Stunt Team', 'Stunts Capture']
     },
     {
@@ -343,8 +355,38 @@ const App = () => {
       results: ['目標受眾滿意度突破 80%', '建立可擴充的 UI 元件化規範'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
-      cta: "Check Design System",
+      cta: "查看設計系統規範",
       skills: ['UI/UX Design', 'Design System', 'Prototyping']
+    }
+  ];
+
+  const contactOptions = [
+    {
+      id: 'mail',
+      title: 'Email 聯絡',
+      label: 'Send Email',
+      value: 'a199b5c20@gmail.com',
+      icon: Mail,
+      desc: '點擊發送電子郵件至 a199b5c20@gmail.com，討論產品經理相關職務合作。',
+      color: '#FF8C42'
+    },
+    {
+      id: 'phone',
+      title: '電話聯繫',
+      label: 'Call Now',
+      value: '0903832322',
+      icon: Phone,
+      desc: '直接撥打 0903-832-322 與我聯繫，進行更即時的溝通與對齊。',
+      color: '#2dd4bf'
+    },
+    {
+      id: 'download',
+      title: '個人檔案',
+      label: '下載CV',
+      value: 'https://drive.google.com/drive/folders/1msoTXlaDAHxeuLLGlMHz4HpXpikqDt3M?usp=drive_link',
+      icon: Download,
+      desc: '下載我的完整履歷與過往專案詳細文件，了解更多專業實戰細節。',
+      color: '#64748b'
     }
   ];
 
@@ -355,47 +397,48 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
-      <motion.div className="fixed top-0 left-0 right-0 h-1.5 bg-[#FF8C42] z-[110] origin-left" style={{ scaleX }} />
+      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-[#FF8C42] z-[110] origin-left" style={{ scaleX }} />
       <CustomCursor />
       <NeuralMeshBackground mouse={mousePos} />
       
-      <nav className="fixed w-full bg-white/75 backdrop-blur-xl z-[100] py-3 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm transition-all duration-300">
+      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-3.5 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm">
         <div className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-lg">RH</div>
-          <span className="font-bold uppercase tracking-widest text-sm">REN <span className="text-[#0f172a]">HAO</span></span>
+          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
+          <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-dark">HAO</span></span>
         </div>
-        <div className="hidden md:flex space-x-8 font-black text-[9px] tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
+        <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-400 pointer-events-auto">
           <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
           <button onClick={() => scrollTo('projects')} className="hover:text-[#FF8C42] transition-colors">PROJECTS</button>
-          <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">EXPERTISE</button>
+          <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">SKILLS</button>
           <button 
             onClick={() => scrollTo('about')} 
-            className="bg-slate-900 text-white px-5 py-2 rounded-full hover:bg-orange-500 transition-all text-[9px] font-black tracking-[0.2em] shadow-lg"
+            className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-[10px] font-black tracking-widest"
           >
              CONTACT ME
           </button>
         </div>
       </nav>
 
-      <section id="hero" className="relative min-h-screen pt-20 pb-16 flex flex-col justify-center px-6 md:px-12 z-10 pointer-events-none text-left">
-        <div className="max-w-[1300px] mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-8 lg:gap-12">
+      {/* Hero Section */}
+      <section id="hero" className="relative min-h-screen pt-20 pb-12 flex flex-col justify-center px-6 md:px-12 z-10 pointer-events-none text-left">
+        <div className="max-w-[1300px] mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-12">
           <div className="w-full md:w-[60%] flex flex-col items-start">
             <div className="flex items-center gap-3 mb-5">
-              <div className="h-[1.5px] w-10 bg-[#FF8C42]"></div>
-              <div className="text-[#FF8C42] font-black text-[10px] tracking-[0.45em] uppercase">Commercialization Product Manager</div>
+              <div className="h-[1px] w-10 bg-[#FF8C42]"></div>
+              <div className="text-[#FF8C42] font-black text-[10px] tracking-[0.4em] uppercase">Commercialization Product Manager</div>
             </div>
             <MagneticHeadline mouse={mousePos} />
             <p className="text-lg text-gray-500 max-w-xl mb-10 font-medium leading-relaxed pointer-events-auto">
-              專注於軟體產品商業化營運與體驗優化。我擅長將使用者洞察轉化為商業價值與 **stunning visual experiences** 的系統落地。
+              專注於軟體產品商業化營運與體驗優化。我擅長將使用者洞察轉化為商業價值，並確保具備 stunning visual experiences 的系統專案精確落地。
             </p>
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full pointer-events-auto mb-8 text-left">
-              {impactModules.map((impact, i) => (
-                <div key={i} className="flex flex-col h-full bg-slate-50/50 backdrop-blur-sm border border-slate-100 p-6 rounded-[2.5rem] hover:border-[#FF8C42]/40 transition-all group shadow-sm">
+            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full pointer-events-auto mb-8">
+              {impactMetrics.map((impact, i) => (
+                <div key={i} className="flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 rounded-[2.5rem] hover:border-[#FF8C42]/30 transition-all group">
                   <div className="text-slate-300 mb-4 group-hover:text-[#FF8C42] transition-colors">
                     <impact.icon size={22} />
                   </div>
                   <div className="text-3xl font-black text-slate-900 mb-1">{impact.value}</div>
-                  <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3">{impact.label}</div>
+                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{impact.label}</div>
                   <div className="text-xs text-slate-500 font-medium leading-relaxed mt-auto">{impact.desc}</div>
                 </div>
               ))}
@@ -407,26 +450,27 @@ const App = () => {
         </div>
       </section>
 
-      <section id="experience" className="py-20 px-6 md:px-12 relative z-10 bg-slate-50/50 text-left">
+      {/* Career Path Section */}
+      <section id="experience" className="py-24 px-6 md:px-12 relative z-10 bg-slate-50/50 text-left">
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-6 mb-16">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Career Path</h2>
-            <div className="h-[2px] flex-grow bg-slate-200"></div>
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Career Path</h2>
+            <div className="h-[1px] flex-grow bg-slate-200"></div>
           </div>
-          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-[11px] before:w-[2px] before:bg-gradient-to-b before:from-[#FF8C42] before:via-[#2dd4bf] before:to-transparent">
+          <div className="space-y-12 relative before:absolute before:inset-0 before:ml-[11px] before:w-[1.5px] before:bg-gradient-to-b before:from-[#FF8C42] before:via-[#2dd4bf] before:to-transparent">
             
-            <motion.div whileHover={{ x: 10 }} className="relative pl-16 group pointer-events-auto cursor-pointer">
-              <div className="absolute left-0 top-3 w-5 h-5 rounded-full bg-white border-4 border-[#FF8C42] shadow-md group-hover:scale-125 transition-all" />
-              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/40 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-5 gap-3">
+            <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
+              <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#FF8C42] group-hover:scale-125 transition-all" />
+              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3">
                   <div>
-                    <div className="flex items-center gap-2 mb-1.5 text-slate-500 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
-                    <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
+                    <h3 className="text-2xl font-black text-slate-900 text-left">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100">2024.10 - Present</span>
                 </div>
-                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide">商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 tracking-widest uppercase">Commercialization Product Manager</span></h4>
-                <div className="grid grid-cols-1 gap-4">
+                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Commercialization Product Manager</span></h4>
+                <div className="grid grid-cols-1 gap-4 text-left">
                   {reallusionBullets.map((bullet, idx) => (
                     <div key={idx} className="flex gap-4 items-start">
                       <div className="shrink-0 mt-1">{bullet.icon}</div>
@@ -437,18 +481,18 @@ const App = () => {
               </div>
             </motion.div>
 
-            <motion.div whileHover={{ x: 10 }} className="relative pl-16 group pointer-events-auto cursor-pointer">
-              <div className="absolute left-0 top-3 w-5 h-5 rounded-full bg-white border-4 border-[#2dd4bf] shadow-md group-hover:scale-125 transition-all" />
-              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/40 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-5">
+            <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
+              <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#2dd4bf] group-hover:scale-125 transition-all" />
+              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6">
                   <div>
-                    <div className="flex items-center gap-2 mb-1.5 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
-                    <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
+                    <h3 className="text-2xl font-black text-slate-900 text-left">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100">2023.05 - 2024.10</span>
                 </div>
-                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide">產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-3 tracking-widest uppercase">Product Designer & Project Exec.</span></h4>
-                <div className="grid grid-cols-1 gap-4">
+                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span></h4>
+                <div className="grid grid-cols-1 gap-4 text-left">
                   {globalPowerBullets.map((bullet, idx) => (
                     <div key={idx} className="flex gap-4 items-start">
                       <div className="shrink-0 mt-1">{bullet.icon}</div>
@@ -462,11 +506,12 @@ const App = () => {
         </div>
       </section>
 
-      <section id="projects" className="py-20 px-6 md:px-12 relative z-10 text-left">
+      {/* Projects Showcase */}
+      <section id="projects" className="py-24 px-6 md:px-12 relative z-10 text-left">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center gap-6 mb-16">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Major Missions</h2>
-            <div className="h-[2px] flex-grow bg-slate-100"></div>
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Project Showcase</h2>
+            <div className="h-[1px] flex-grow bg-slate-100"></div>
           </div>
           
           <div className="space-y-16 pointer-events-auto">
@@ -476,53 +521,23 @@ const App = () => {
                 initial={{ opacity: 0, scale: 0.98 }}
                 whileInView={{ opacity: 1, scale: 1 }}
                 viewport={{ once: true, margin: "-100px" }}
-                className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-500 group flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left"
+                className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-600 group flex flex-col md:flex-row gap-10 items-start relative overflow-hidden"
               >
-                <TiltCard className="w-full md:w-[50%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-xl border border-slate-200 relative group/img bg-slate-50 shrink-0">
-                  {project.id === 'content-store' ? (
-                    <div className="w-full h-full relative">
-                      <AnimatePresence mode='wait'>
-                        <motion.img
-                          key={contentStoreIndex}
-                          src={project.imgs[contentStoreIndex]}
-                          initial={{ opacity: 0, scale: 1.05 }}
-                          animate={{ opacity: 1, scale: 1 }}
-                          exit={{ opacity: 0, scale: 0.95 }}
-                          transition={{ duration: 0.6 }}
-                          className="w-full h-full object-cover"
-                        />
-                      </AnimatePresence>
-                      <div className="absolute bottom-6 left-1/2 -translate-x-1/2 flex gap-3 z-20">
-                        <button 
-                          onClick={() => setContentStoreIndex(0)}
-                          className={`px-5 py-2 rounded-full text-[9px] font-black tracking-widest transition-all ${contentStoreIndex === 0 ? 'bg-[#FF8C42] text-white shadow-lg' : 'bg-white/90 text-slate-500 backdrop-blur hover:bg-white'}`}
-                        >
-                          ACTOR
-                        </button>
-                        <button 
-                          onClick={() => setContentStoreIndex(1)}
-                          className={`px-5 py-2 rounded-full text-[9px] font-black tracking-widest transition-all ${contentStoreIndex === 1 ? 'bg-[#FF8C42] text-white shadow-lg' : 'bg-white/90 text-slate-500 backdrop-blur hover:bg-white'}`}
-                        >
-                          MOTION
-                        </button>
-                      </div>
-                    </div>
-                  ) : (
-                    <img 
-                      src={project.img} 
-                      alt={project.title} 
-                      className="w-full h-full object-cover group-hover/img:scale-105 transition-transform duration-1000 ease-out" 
-                    />
-                  )}
+                <TiltCard className="w-full md:w-[48%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative group/img bg-slate-50 shrink-0">
+                  <img 
+                    src={project.img} 
+                    alt={project.title} 
+                    className="w-full h-full object-cover group-hover/img:scale-106 transition-transform duration-[1.8s] ease-out" 
+                  />
                 </TiltCard>
                 
                 <div className="flex-grow flex flex-col h-full py-2">
-                  <div className="flex items-center gap-3 mb-3">
-                    <div className="w-8 h-[1.5px] bg-slate-200"></div>
-                    <span className="text-[10px] font-black text-accent uppercase tracking-widest">{project.id}</span>
+                  <div className="flex items-center gap-3 mb-4">
+                    <div className="w-8 h-[1px] bg-slate-200"></div>
+                    <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">{project.id}</span>
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-5 leading-tight group-hover:text-orange-500 transition-colors">{project.title}</h3>
-                  <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium">{project.desc}</p>
+                  <h3 className="text-2xl font-black text-slate-900 mb-5 leading-tight group-hover:text-orange-500 transition-colors text-left">{project.title}</h3>
+                  <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium text-left">{project.desc}</p>
                   
                   <div className="space-y-3 mb-8">
                     {project.results.map((r, i) => (
@@ -533,9 +548,8 @@ const App = () => {
                     ))}
                   </div>
                   
-                  {/* 按鈕與標籤平放優化 */}
-                  <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <button className="flex items-center justify-center gap-2 bg-slate-950 text-white px-7 py-3.5 rounded-full font-black text-[10px] tracking-widest hover:bg-orange-500 transition-all shadow-xl group/btn shrink-0">
+                  <div className="mt-auto pt-8 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                    <button className="flex items-center justify-center gap-2 bg-slate-900 text-white px-7 py-3.5 rounded-full font-black text-[10px] tracking-widest hover:bg-orange-500 transition-all group/btn shrink-0">
                       {project.cta} <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
                     </button>
                     
@@ -552,68 +566,102 @@ const App = () => {
         </div>
       </section>
 
+      {/* Professional Skills */}
       <section id="expertise" className="py-24 px-6 md:px-24 bg-white relative z-10 border-t border-slate-50 text-left">
         <div className="max-w-6xl mx-auto">
           <div className="flex items-center gap-6 mb-20">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Strategic Arsenal</h2>
-            <div className="h-[2px] flex-grow bg-slate-200"></div>
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Professional Skills</h2>
+            <div className="h-[1px] flex-grow bg-slate-200"></div>
           </div>
           
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 pointer-events-auto">
             {[
-              { title: '商品化營運', icon: <Target size={30} />, desc: '精通 Commercialization 策略，有效規劃 Package 驅動轉換成長。' },
-              { title: '產品優先級', icon: <Users size={30} />, desc: '具備強大 Prioritization 決策力，平衡技術限制與商業目標。' },
-              { title: '體驗架構設計', icon: <Layers size={30} />, desc: '重構 Taxonomy 與 Theme/Tag 架構，提升內容發現效率。' },
-              { title: '數據分析優化', icon: <BarChart3 size={30} />, desc: '分析用戶行為，持續優化產品體驗與商業成效。' }
+              { title: '商品化營運規劃', icon: <Target size={28} />, desc: '具備 Commercialization 完整策略能力，能有效規劃 Package 並驅動業務增長。' },
+              { title: '產品優化與管理', icon: <Users size={28} />, desc: '具備明確的 Prioritization 決策邏輯，能在開發限制中最大化產品價值。' },
+              { title: '資訊架構優化', icon: <Layers size={28} />, desc: '擅長重構系統 Taxonomy 與 IA 架構，優化內容發現效率與搜尋體驗。' },
+              { title: '數據驅動決策', icon: <BarChart3 size={28} />, desc: '分析使用者行為與銷售數據，持續優化產品轉化流程與用戶留存。' }
             ].map((item, i) => (
-              <div key={i} className="p-10 border border-slate-100 rounded-[3rem] bg-slate-50/50 hover:bg-white hover:shadow-2xl transition-all group relative overflow-hidden transform hover:-translate-y-2 h-full shadow-sm">
-                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 transition-all w-fit relative z-10">
+              <div key={i} className="p-10 border border-slate-50 rounded-[3rem] bg-slate-50/30 hover:bg-white hover:shadow-2xl transition-all group relative overflow-hidden transform hover:-translate-y-2 shadow-sm">
+                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 transition-all w-fit">
                   {item.icon}
                 </div>
-                <h4 className="text-xl font-black mb-4 text-slate-800 tracking-tight">{item.title}</h4>
-                <p className="text-slate-500 text-xs leading-relaxed font-medium">{item.desc}</p>
-                <div className="absolute bottom-0 left-0 w-0 h-2 bg-[#FF8C42] group-hover:w-full transition-all duration-500"></div>
+                <h4 className="text-xl font-black mb-4 text-slate-800 tracking-tight text-left">{item.title}</h4>
+                <p className="text-slate-500 text-xs leading-relaxed font-medium text-left">{item.desc}</p>
+                <div className="absolute bottom-0 left-0 w-0 h-1.5 bg-[#FF8C42] group-hover:w-full transition-all duration-600 ease-out"></div>
               </div>
             ))}
           </div>
         </div>
       </section>
 
-      <footer id="about" className="py-32 px-6 bg-white text-center border-t border-slate-100 relative overflow-hidden text-center">
-        <div className="max-w-4xl mx-auto relative z-10">
-          <motion.div 
-            whileHover={{ rotate: 15, scale: 1.1 }}
-            className="w-20 h-20 bg-slate-950 rounded-[1.8rem] mx-auto mb-12 flex items-center justify-center text-white font-black text-2xl shadow-2xl pointer-events-auto cursor-pointer"
-          >
-            RH
-          </motion.div>
-          
-          <h2 className="text-4xl md:text-5xl font-black text-slate-950 mb-16 leading-tight tracking-tighter">
-            期待能與願景團隊攜手打造<br />
-            具備商業價值與 <span className="text-[#FF8C42] italic">stunning</span> 體驗的產品。
-          </h2>
-          
-          <div className="flex flex-col md:flex-row justify-center items-center gap-10 md:gap-20 font-black pointer-events-auto">
-            <motion.div whileHover={{ scale: 1.05, y: -5 }} className="flex flex-col items-center group cursor-pointer text-center">
-              <span className="text-slate-300 uppercase tracking-widest text-[10px] mb-3">Call Me</span>
-              <a href="tel:886-903832322" className="text-2xl text-slate-900 group-hover:text-[#FF8C42] transition-colors flex items-center gap-3">
-                <div className="p-2.5 bg-orange-50 rounded-2xl"><Phone size={22} className="text-[#FF8C42]" /></div>
-                0903-832-322
-              </a>
-            </motion.div>
-            
-            <motion.div whileHover={{ scale: 1.05, y: -5 }} className="flex flex-col items-center group cursor-pointer text-center">
-              <span className="text-slate-300 uppercase tracking-widest text-[10px] mb-3">Email Me</span>
-              <a href="mailto:a199b5c20@gmail.com" className="text-2xl text-slate-900 group-hover:text-[#2dd4bf] transition-colors flex items-center gap-3">
-                <div className="p-2.5 bg-teal-50 rounded-2xl"><Mail size={22} className="text-[#2dd4bf]" /></div>
-                a199b5c20@gmail.com
-              </a>
-            </motion.div>
+      {/* Contact & Resources Footer - 絲滑動態優化 */}
+      <footer id="about" className="py-32 px-6 bg-white border-t border-slate-100 relative overflow-hidden text-center">
+        <div className="max-w-6xl mx-auto relative z-10">
+          <div className="text-center mb-20">
+            <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
+               <span className="text-[10px] font-black text-slate-400 tracking-[0.4em] uppercase">Professional Network</span>
+            </div>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">
+              聯絡資訊與資源
+            </h2>
+            <p className="text-slate-400 font-medium">點擊下方卡片展開詳細聯絡資訊，期待與您的團隊共同創造價值。</p>
+          </div>
+
+          <div className="flex flex-col lg:flex-row gap-6 mb-24 pointer-events-auto">
+            {contactOptions.map((opt) => (
+              <motion.a
+                layout
+                key={opt.id}
+                href={opt.id === 'mail' ? `mailto:${opt.value}` : opt.id === 'phone' ? `tel:${opt.value}` : opt.value}
+                target={opt.id === 'download' ? "_blank" : "_self"}
+                onMouseEnter={() => setHoveredContact(opt.id)}
+                onMouseLeave={() => setHoveredContact(null)}
+                animate={{ 
+                  flex: hoveredContact === opt.id ? 2.2 : 1,
+                  opacity: hoveredContact && hoveredContact !== opt.id ? 0.45 : 1,
+                  filter: hoveredContact && hoveredContact !== opt.id ? 'blur(3px)' : 'blur(0px)'
+                }}
+                transition={{ type: 'spring', stiffness: 140, damping: 25 }}
+                className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all overflow-hidden relative group cursor-pointer"
+              >
+                {/* 背景 Icon 裝飾 */}
+                <div className="absolute -top-4 -right-4 w-32 h-32 opacity-5 group-hover:opacity-15 transition-opacity duration-700" style={{ color: opt.color }}>
+                   <opt.icon size={110} strokeWidth={1} />
+                </div>
+
+                <div className="relative z-10 flex flex-col h-full text-left">
+                  <div className="flex items-center gap-4 mb-8">
+                    <div className="p-4 rounded-[1.5rem] bg-slate-50 group-hover:bg-white group-hover:shadow-md transition-all" style={{ color: opt.color }}>
+                       <opt.icon size={26} />
+                    </div>
+                    <div>
+                       <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{opt.title}</div>
+                       <div className="text-xl font-black text-slate-900">{opt.label}</div>
+                    </div>
+                  </div>
+                  
+                  <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors">
+                    {opt.desc}
+                  </div>
+
+                  <div className="mt-auto">
+                    <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
+                    <div className="text-[15px] font-black text-slate-800">
+                       {opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}
+                    </div>
+                  </div>
+
+                  <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500">
+                     <ArrowRight size={22} style={{ color: opt.color }} />
+                  </div>
+                </div>
+              </motion.a>
+            ))}
           </div>
           
-          <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
-            <div className="w-12 h-[1.5px] bg-slate-100"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V19.1 REFINED
+          <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase text-center flex flex-col items-center gap-4">
+            <div className="w-12 h-[1px] bg-slate-200"></div>
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V23.0 PROFESSIONAL
           </div>
         </div>
       </footer>
