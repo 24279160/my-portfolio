@@ -34,7 +34,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-// --- 背景特效 1：環境漸層流光球 (紫色已移除，改為石板灰) ---
+// --- 背景特效 1：環境漸層流光球 ---
 const AmbientBlobs = () => (
   <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60 mix-blend-multiply">
     <motion.div 
@@ -241,7 +241,7 @@ const TiltCard = ({ children, className = "" }) => {
   );
 };
 
-// --- 優化：數據卡片 ---
+// --- 優化：數據卡片 (確保最小字體 12px) ---
 const MetricCard = ({ impact, className = "" }) => {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const cardRef = useRef(null);
@@ -256,7 +256,7 @@ const MetricCard = ({ impact, className = "" }) => {
     <div 
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      className={`relative flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-5 md:p-7 rounded-[2rem] hover:border-[#FF8C42]/30 transition-all duration-500 group shadow-sm overflow-hidden pointer-events-auto ${className}`}
+      className={`relative flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-5 md:p-6 lg:p-7 rounded-[2rem] hover:border-[#FF8C42]/30 transition-all duration-500 group shadow-sm overflow-hidden pointer-events-auto ${className}`}
     >
       <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden rounded-[2rem]">
         <div 
@@ -272,18 +272,21 @@ const MetricCard = ({ impact, className = "" }) => {
       <div className="relative z-10 text-slate-300 mb-3 md:mb-4 group-hover:text-[#FF8C42] transition-colors duration-300 group-hover:scale-110 transform origin-left w-fit">
         <impact.icon size={28} strokeWidth={2.5} />
       </div>
-      <div className="relative z-10 text-3xl font-black text-slate-900 mb-1 md:mb-2 tracking-tighter group-hover:translate-x-1 transition-transform duration-300 whitespace-nowrap">{impact.value}</div>
-      <div className="relative z-10 text-[10px] md:text-xs font-black text-slate-400 uppercase tracking-widest mb-2 md:mb-3 leading-tight">{impact.label}</div>
-      <div className="relative z-10 text-[13px] md:text-sm text-slate-500 font-medium leading-relaxed mt-auto break-words">{impact.desc}</div>
+      <div className="relative z-10 text-2xl lg:text-3xl font-black text-slate-900 mb-1 md:mb-2 tracking-tighter group-hover:translate-x-1 transition-transform duration-300 whitespace-nowrap">{impact.value}</div>
+      <div className="relative z-10 text-xs font-black text-slate-400 uppercase tracking-widest mb-2 md:mb-3 leading-tight">{impact.label}</div>
+      <div className="relative z-10 text-xs md:text-sm text-slate-500 font-medium leading-relaxed mt-auto break-words">{impact.desc}</div>
     </div>
   );
 };
 
-// --- 磁吸互動標題組件 ---
+// --- 磁吸互動標題組件 (超可愛 Emoji 噴發彩蛋) ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
+  
+  const emojisList = ['✨', '🚀', '💡', '💻', '💙', '👀', '🎉', '🔥', '🌟', '💪'];
+  const [bursts, setBursts] = useState([]);
 
   useEffect(() => {
     if (isHovered && h1Ref.current) {
@@ -301,11 +304,22 @@ const MagneticHeadline = ({ mouse }) => {
     }
   }, [mouse, isHovered]);
 
+  const triggerEmojiBurst = () => {
+    setIsHovered(true);
+    const newBursts = Array.from({ length: 5 }).map((_, i) => ({
+      id: Date.now() + i,
+      emoji: emojisList[Math.floor(Math.random() * emojisList.length)],
+      angle: (i * (Math.PI * 2)) / 5 + (Math.random() - 0.5), 
+      distance: 60 + Math.random() * 50,
+    }));
+    setBursts(newBursts);
+  };
+
   return (
     <div className="flex flex-col items-start mb-6 pointer-events-auto cursor-default overflow-visible text-left">
       <motion.h1 
         ref={h1Ref}
-        onMouseEnter={() => setIsHovered(true)}
+        onMouseEnter={triggerEmojiBurst}
         onMouseLeave={() => setIsHovered(false)}
         animate={{ x: offset.x, y: offset.y }}
         transition={{ type: 'spring', stiffness: 220, damping: 25 }}
@@ -316,17 +330,36 @@ const MagneticHeadline = ({ mouse }) => {
         }}
       >
         HI, I AM <span className="italic">REN.</span>
+        
+        <AnimatePresence>
+          {isHovered && bursts.map(item => (
+            <motion.div
+              key={item.id}
+              initial={{ opacity: 0, x: 0, y: 0, scale: 0.5 }}
+              animate={{
+                opacity: [0, 1, 0],
+                x: Math.cos(item.angle) * item.distance,
+                y: Math.sin(item.angle) * item.distance,
+                scale: [0.5, 1.5, 1],
+                rotate: (Math.random() - 0.5) * 60
+              }}
+              transition={{ duration: 0.8, ease: "easeOut" }}
+              className="absolute left-[80%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl md:text-5xl pointer-events-none z-50 drop-shadow-md"
+            >
+              {item.emoji}
+            </motion.div>
+          ))}
+        </AnimatePresence>
       </motion.h1>
     </div>
   );
 };
 
-// --- ★ 新增：大頭照專屬的「調皮逃跑」毛玻璃標籤 ---
+// --- 大頭照專屬的「調皮逃跑」毛玻璃標籤 ---
 const ProfileDodgeTag = ({ tag, idx }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
   const handleHover = () => {
-    // 計算隨機彈開角度與距離 (不影響閱讀的安全距離)
     const angle = Math.random() * Math.PI * 2;
     const distance = 20 + Math.random() * 15; 
     setDodgePos({
@@ -334,7 +367,6 @@ const ProfileDodgeTag = ({ tag, idx }) => {
       y: Math.sin(angle) * distance
     });
 
-    // 2.5秒後自動乖乖溜回原位
     setTimeout(() => {
       setDodgePos({ x: 0, y: 0 });
     }, 2500);
@@ -364,7 +396,6 @@ const ProfileDodgeTag = ({ tag, idx }) => {
           repeat: Infinity, 
           ease: "easeInOut" 
         }}
-        // 明顯的高級毛玻璃效果
         className="whitespace-nowrap bg-white/70 backdrop-blur-xl border border-white/80 text-slate-800 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-black tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.12)] cursor-default transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
         style={{ borderLeft: `4px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
       >
@@ -374,7 +405,7 @@ const ProfileDodgeTag = ({ tag, idx }) => {
   );
 };
 
-// --- ★ 優化：頭像組件 (套用逃跑毛玻璃) ---
+// --- 頭像組件 (套用逃跑毛玻璃) ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
@@ -457,7 +488,7 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
         ...dynamicStyle
       }}
       transition={{ type: "spring", stiffness: 200, damping: 20 }}
-      className={`text-[9.5px] font-black px-3 py-1.5 border rounded-full uppercase tracking-widest cursor-pointer inline-block z-10 relative shadow-sm transition-colors duration-300 ${baseColorClass} ${isHovered ? 'shadow-md z-20' : ''}`}
+      className={`text-xs md:text-[13px] font-black px-3 py-1.5 border rounded-full uppercase tracking-widest cursor-pointer inline-block z-10 relative shadow-sm transition-colors duration-300 ${baseColorClass} ${isHovered ? 'shadow-md z-20' : ''}`}
     >
       {displayText}
     </motion.span>
@@ -513,7 +544,9 @@ const App = () => {
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
       buttons: [
-        { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
+        { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
+        // ★ 新增 ActorCore 影片 Demo 連結
+        { label: "Deep Search 實機展示", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
     },
@@ -549,7 +582,9 @@ const App = () => {
       tagColor: '#2dd4bf',
       tagBg: 'bg-teal-50',
       buttons: [
-        { label: "查看展示影片", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> }
+        // ★ 分流與文案更新：區分新聞與 KOL 影片
+        { label: "新聞報導實錄", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> },
+        { label: "KOL 實機展示", url: "https://youtu.be/o4sykcmklbo?t=2006", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Prioritization', 'Asian Stunt Team', 'Stunts Capture']
     },
@@ -608,7 +643,7 @@ const App = () => {
       id: 'design',
       title: '使用者體驗與介面設計',
       icon: LayoutTemplate,
-      color: '#64748b', // ★ 已將紫色替換為沈穩的 Slate 石板灰
+      color: '#64748b', 
       bullets: [
         '規劃使用者體驗流程 (User Flow / Wireframe / Prototype)。',
         '優化產品 UI/UX，提升操作效率與使用流暢度。',
@@ -645,7 +680,7 @@ const App = () => {
       value: 'https://drive.google.com/drive/folders/1msoTXlaDAHxeuLLGlMHz4HpXpikqDt3M?usp=drive_link',
       icon: Download,
       desc: '下載我的完整履歷與過往專案詳細文件，了解更多專業實戰細節。',
-      color: '#64748b' // ★ 已將紫色替換為沈穩的 Slate 石板灰
+      color: '#64748b' 
     }
   ];
 
@@ -666,24 +701,25 @@ const App = () => {
           <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
           <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-slate-600">HAO</span></span>
         </div>
-        <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
+        <div className="hidden md:flex space-x-10 font-bold text-xs tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
           <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
           <button onClick={() => scrollTo('projects')} className="hover:text-[#FF8C42] transition-colors">PROJECTS</button>
           <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">SKILLS</button>
-          <button onClick={() => scrollTo('about')} className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-[10px] font-black tracking-widest">CONTACT ME</button>
+          <button onClick={() => scrollTo('about')} className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-xs font-black tracking-widest">CONTACT ME</button>
         </div>
       </nav>
 
-      <section id="hero" className="relative min-h-screen pt-20 pb-12 flex flex-col justify-center px-6 md:px-12 z-10 pointer-events-none text-left">
+      <section id="hero" className="relative min-h-screen pt-24 pb-12 flex flex-col justify-center px-6 md:px-12 z-10 pointer-events-none text-left">
         <div className="max-w-[1300px] mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20">
-          <div className="w-full md:w-[50%] flex flex-col items-start">
+          <div className="w-full md:w-[50%] flex flex-col items-start mt-8 md:mt-0">
             <div className="flex items-center gap-3 mb-5">
               <div className="h-[1px] w-10 bg-[#FF8C42]"></div>
-              <div className="text-[#FF8C42] font-black text-[10px] tracking-[0.4em] uppercase">Commercialization Product Manager</div>
+              <div className="text-[#FF8C42] font-black text-xs tracking-[0.3em] uppercase">Commercialization Product Manager</div>
             </div>
+            
             <MagneticHeadline mouse={mousePos} />
             
-            <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-10 max-w-2xl text-[15px] md:text-base">
+            <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-8 max-w-2xl text-[15px] md:text-base">
               <p>
                 你好，我是具備產品策略與歐美平台營運經驗的 PM。目前於 Reallusion 負責 ActorCore 與 Content Store 兩大素材電商之產品優化與商業化策略。我透過使用者行為分析，重構搜尋體驗與商城內容結構 (Theme/Tag)，並與歐美開發者協作，成功提升使用者的查找效率與平台轉換表現。
               </p>
@@ -691,18 +727,29 @@ const App = () => {
                 過去我也擁有 0→1 XR 跨平台系統的建置經驗，擅長將使用者研究洞察轉化為具體規格。在技術限制與商業目標間精準決策，推動產品落地。此外，亦曾參與 Bus+ APP 產品介面優化，累積了扎實的 B2C 產品體驗優化能力。
               </p>
             </div>
+
+            {/* ★ CTA 動線修正：指向 experience 區塊 */}
+            <div className="flex gap-4 mb-10 pointer-events-auto">
+              <button 
+                onClick={() => scrollTo('experience')} 
+                className="bg-gradient-to-r from-[#FF8C42] to-orange-400 text-white px-8 py-3.5 rounded-full font-black text-sm tracking-widest shadow-[0_8px_20px_rgba(255,140,66,0.3)] hover:shadow-[0_12px_25px_rgba(255,140,66,0.4)] hover:-translate-y-1 transition-all flex items-center gap-2"
+              >
+                深入了解我 <ArrowDown size={16} />
+              </button>
+            </div>
             
-            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 w-full pointer-events-auto mb-8">
+            <div className="flex overflow-x-auto md:grid md:grid-cols-3 gap-4 w-full pointer-events-auto mb-8 pb-4 snap-x hide-scrollbar" style={{ scrollbarWidth: 'none', msOverflowStyle: 'none' }}>
+              <style>{`.hide-scrollbar::-webkit-scrollbar { display: none; }`}</style>
               {impactMetrics.map((impact, i) => (
                 <MetricCard 
                   key={i} 
                   impact={impact} 
-                  className={i === 2 ? 'sm:col-span-2' : ''} 
+                  className="min-w-[85%] sm:min-w-[45%] md:min-w-0 snap-center shrink-0" 
                 />
               ))}
             </div>
           </div>
-          <div className="w-full md:w-[50%] flex justify-center md:justify-end mt-10 md:mt-0">
+          <div className="w-full md:w-[50%] flex justify-center md:justify-end mt-4 md:mt-0">
             <ProfilePhoto mouse={mousePos} />
           </div>
         </div>
@@ -721,13 +768,13 @@ const App = () => {
               <div className="bg-white p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-3 text-left">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={16} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={16} /><span className="text-xs tracking-widest uppercase">Global E-commerce & SaaS</span></div>
                     <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
                   </div>
-                  <span className="text-[10px] font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">2024.10 - Present</span>
+                  <span className="text-xs font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">2024.10 - Present</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  商品化經理 <span className="text-[10px] text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">Commercialization Product Manager</span>
+                  商品化經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">Commercialization Product Manager</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -739,7 +786,7 @@ const App = () => {
                         </div>
                       </div>
                       <div className="flex-1 flex flex-col">
-                        <span className="text-[10px] font-black tracking-widest text-[#FF8C42] mb-1.5 uppercase">
+                        <span className="text-xs font-black tracking-widest text-[#FF8C42] mb-1.5 uppercase">
                           {bullet.tag}
                         </span>
                         <div className="text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
@@ -757,13 +804,13 @@ const App = () => {
               <div className="bg-white p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-3 text-left">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={16} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={16} /><span className="text-xs tracking-widest uppercase">B2B / B2G Integration</span></div>
                     <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
                   </div>
-                  <span className="text-[10px] font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100 w-fit">2023.05 - 2024.10</span>
+                  <span className="text-xs font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100 w-fit">2023.05 - 2024.10</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  產品設計師 <span className="text-[10px] text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Product Designer & Project Exec.</span>
+                  產品設計師 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Product Designer & Project Exec.</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -775,7 +822,7 @@ const App = () => {
                         </div>
                       </div>
                       <div className="flex-1 flex flex-col">
-                        <span className="text-[10px] font-black tracking-widest text-[#2dd4bf] mb-1.5 uppercase">
+                        <span className="text-xs font-black tracking-widest text-[#2dd4bf] mb-1.5 uppercase">
                           {bullet.tag}
                         </span>
                         <div className="text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
@@ -817,7 +864,7 @@ const App = () => {
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
-                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
+                      <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
                     </div>
                     <div className={`font-black ${project.isFlagship ? 'text-xl' : 'text-lg'} text-slate-900 tracking-tight`}>
                       {project.highlightMetric}
@@ -828,7 +875,7 @@ const App = () => {
                 <div className="flex-grow flex flex-col h-full py-2 relative z-20">
                   <div className="flex items-center gap-3 mb-4 text-left">
                     <div className={`w-8 h-[2px] group-hover:w-12 transition-all duration-500`} style={{ backgroundColor: project.tagColor || '#cbd5e1' }}></div>
-                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                    <span className="text-xs font-black uppercase tracking-[0.3em]">
                       <span className={`px-2 py-1 rounded-md ${project.tagBg}`} style={{ color: project.tagColor }}>
                         {project.tagLabel}
                       </span>
@@ -844,7 +891,7 @@ const App = () => {
                   </p>
 
                   <div className="mb-6 border-b border-slate-50 pb-5">
-                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                    <div className="text-xs font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <Activity size={12} className="text-slate-400" /> PM Deliverables
                     </div>
                     <div className="flex gap-2 flex-wrap relative min-h-[40px] items-start">
@@ -873,8 +920,7 @@ const App = () => {
                           rel="noopener noreferrer"
                           whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
-                          // ★ 已全面統一按鈕樣式：白底灰邊、放大字體、Hover加深
-                          className="flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black text-[12px] md:text-[13px] tracking-widest transition-all bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:text-slate-900 shadow-sm hover:shadow-md"
+                          className="flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black text-xs md:text-[13px] tracking-widest transition-all bg-white text-slate-700 border-2 border-slate-200 hover:border-slate-800 hover:text-slate-900 shadow-sm hover:shadow-md"
                         >
                           {btn.icon} {btn.label}
                         </motion.a>
@@ -944,7 +990,7 @@ const App = () => {
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-20">
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
-               <span className="text-[10px] font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
+               <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊與資源</h2>
             <p className="text-slate-400 font-medium text-center">點擊下方卡片展開詳細聯絡資訊，期待與您的團隊共同創造價值。</p>
@@ -991,13 +1037,13 @@ const App = () => {
                       <opt.icon size={26} />
                     </motion.div>
                     <div>
-                       <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 text-left">{opt.title}</div>
+                       <div className="text-xs font-black text-slate-300 uppercase tracking-widest mb-1 text-left">{opt.title}</div>
                        <div className="text-xl font-black text-slate-900 text-left">{opt.label}</div>
                     </div>
                   </div>
                   <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors text-left">{opt.desc}</div>
                   <div className="mt-auto text-left">
-                    <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
+                    <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
                     <div className="text-[15px] font-black text-slate-800 text-left">{opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}</div>
                   </div>
                   <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500">
@@ -1007,9 +1053,9 @@ const App = () => {
               </motion.a>
             ))}
           </div>
-          <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
+          <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.6 FIX
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.9
           </div>
         </div>
       </footer>
