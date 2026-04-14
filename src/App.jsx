@@ -24,7 +24,7 @@ import {
   FileText,
   ExternalLink,
   Play,
-  Figma,
+  PenTool,
   Navigation
 } from 'lucide-react';
 
@@ -322,7 +322,6 @@ const App = () => {
     { icon: <ShieldCheck className="text-teal-500" size={16} />, text: "參與政府專案執行，確保產品符合實際應用場景與驗收標準。" }
   ];
 
-  // 專案數據 (更新連結並移除圖片上的提示文字)
   const projects = [
     {
       id: 'actorcore',
@@ -369,7 +368,7 @@ const App = () => {
       icon: LayoutTemplate,
       buttons: [
         { label: "完整專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
-        { label: "Figma Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <Figma size={14} /> },
+        { label: "Figma Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
         { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?page-id=138:1498&node-id=710-73139&viewport=-9828,1631,0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710:73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
       ],
       skills: ['UI/UX Design', 'Design System', 'Prototyping']
@@ -417,9 +416,9 @@ const App = () => {
       <CustomCursor />
       <NeuralMeshBackground mouse={mousePos} />
       
-      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-3.5 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm">
+      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm">
         <div className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
+          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
           <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-dark">HAO</span></span>
         </div>
         <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
@@ -517,7 +516,7 @@ const App = () => {
         </div>
       </section>
 
-      {/* Projects Showcase - 連結補全且移除圖片提示文字 */}
+      {/* Projects Showcase */}
       <section id="projects" className="py-24 px-6 md:px-12 relative z-10 text-left">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center gap-6 mb-16 text-left">
@@ -530,7 +529,6 @@ const App = () => {
               <TiltCard key={idx} className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default">
                 <div className="w-full md:w-[48%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0">
                   <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
-                  {/* 移除原本的 View Detailed Case Study 懸浮條 */}
                 </div>
                 
                 <div className="flex-grow flex flex-col h-full py-2 relative z-20">
@@ -650,7 +648,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V26.0 PROFESSIONAL
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V26.1 PROFESSIONAL
           </div>
         </div>
       </footer>
