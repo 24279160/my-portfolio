@@ -194,7 +194,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件 ---
+// --- 頭像組件：妳的真人照 ---
 const ProfilePhoto = ({ mouse }) => {
   const [center, setCenter] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -537,7 +537,7 @@ const App = () => {
               <span className="text-xl text-slate-800 font-black flex items-center gap-2"><Globe size={18} className="text-[#FF8C42]" />Xizhi District</span>
             </div>
           </div>
-          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V16.0 FINAL</div>
+          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.9 FINAL</div>
         </div>
       </footer>
     </div>
