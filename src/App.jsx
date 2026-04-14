@@ -1,32 +1,36 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
 import { 
+  Play, 
+  ChevronRight, 
   Target, 
   Layers, 
   Users, 
+  X, 
   CheckCircle2,
+  Sparkles,
+  ArrowDown,
   Search,
   Package,
   ShieldCheck,
+  MousePointer2,
   Building2,
-  LayoutTemplate,
-  TrendingUp,
-  Cpu,
-  Phone,
-  Mail,
-  Zap,
+  Activity,
   Monitor,
   ClipboardList,
   BarChart3,
   Globe2,
   ArrowRight,
+  Mail,
+  Phone,
   Download,
   FileText,
-  ExternalLink,
-  Play,
   PenTool,
   Navigation,
-  Activity
+  Zap,
+  TrendingUp,
+  Cpu,
+  LayoutTemplate
 } from 'lucide-react';
 
 // --- 核心組件：優雅導覽滑鼠 ---
@@ -88,44 +92,21 @@ const CustomCursor = () => {
   );
 };
 
-// --- 可愛互動進度條 (提案 A：打拼小機車) ---
-const CuteProgressBar = () => {
+// --- 進度條：科技光軌 ---
+const AestheticProgressBar = () => {
   const { scrollYProgress } = useScroll();
   const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
-  const xPos = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
-
-  const [isJumping, setIsJumping] = useState(false);
-  
-  const handleInteraction = () => {
-    setIsJumping(true);
-    setTimeout(() => setIsJumping(false), 400); // 400ms 後恢復原狀
-  };
 
   return (
-    <div 
-      className="fixed top-0 left-0 right-0 h-1.5 z-[110] bg-slate-100/50 backdrop-blur-sm cursor-pointer pointer-events-auto" 
-      onClick={handleInteraction}
-    >
-      {/* 橘色進度條本體 */}
-      <motion.div className="absolute top-0 left-0 bottom-0 bg-[#FF8C42] origin-left" style={{ scaleX, width: '100%' }} />
-      
-      {/* 騎車的 PM */}
-      <motion.div
-        className="absolute top-0 left-0 -mt-3.5 text-[22px] select-none"
-        style={{ left: xPos, x: '-50%' }}
-        animate={{ 
-          y: isJumping ? -15 : 0, 
-          rotate: isJumping ? -20 : 0 
-        }}
-        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+    <div className="fixed top-0 left-0 right-0 h-1.5 z-[110] bg-slate-100/30 backdrop-blur-sm pointer-events-none">
+      <motion.div 
+        className="absolute top-0 left-0 bottom-0 origin-left bg-gradient-to-r from-[#FF8C42]/50 to-[#FF8C42]" 
+        style={{ scaleX, width: '100%' }} 
       >
-        <div className="relative group">
-          🛵
-          {/* Hover 提示對話框 */}
-          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[9px] font-black tracking-widest px-2.5 py-1.5 rounded-full whitespace-nowrap shadow-lg pointer-events-none before:content-[''] before:absolute before:-top-1 before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-b-slate-900">
-            Boop me!
-          </div>
-        </div>
+        <div 
+          className="absolute right-0 top-1/2 -translate-y-1/2 w-2 h-2 bg-white rounded-full shadow-[0_0_12px_4px_rgba(255,140,66,0.8)]" 
+          style={{ transform: 'translateX(50%)' }}
+        ></div>
       </motion.div>
     </div>
   );
@@ -195,7 +176,7 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
-// --- 互動卡片容器 ---
+// --- 互動卡片容器 (專案使用) ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glow, setGlow] = useState({ x: 50, y: 50 });
@@ -238,6 +219,84 @@ const TiltCard = ({ children, className = "" }) => {
   );
 };
 
+// --- ★ 優化：加入明顯的量子網格與游離粒子特效 ---
+const MetricCard = ({ impact }) => {
+  const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
+  const cardRef = useRef(null);
+
+  const handleMouseMove = (e) => {
+    if (!cardRef.current) return;
+    const rect = cardRef.current.getBoundingClientRect();
+    setMousePos({ x: e.clientX - rect.left, y: e.clientY - rect.top });
+  };
+
+  return (
+    <div 
+      ref={cardRef}
+      onMouseMove={handleMouseMove}
+      className="relative flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 md:p-8 rounded-[2.5rem] hover:border-[#FF8C42]/50 transition-all duration-500 group shadow-sm overflow-hidden pointer-events-auto"
+    >
+      {/* 互動特效容器 */}
+      <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none">
+        
+        {/* 1. 柔和追蹤光暈 */}
+        <div 
+          className="absolute inset-0 transition-opacity duration-300"
+          style={{ background: `radial-gradient(circle 280px at ${mousePos.x}px ${mousePos.y}px, rgba(255,140,66,0.15), transparent 80%)` }}
+        />
+        
+        {/* 2. 科技感量子網格 (Grid) */}
+        <div 
+          className="absolute inset-0 opacity-40 mix-blend-overlay"
+          style={{
+            backgroundImage: `linear-gradient(rgba(255,140,66,0.4) 1px, transparent 1px), linear-gradient(90deg, rgba(255,140,66,0.4) 1px, transparent 1px)`,
+            backgroundSize: '24px 24px',
+            WebkitMaskImage: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, black, transparent)`,
+            maskImage: `radial-gradient(circle 180px at ${mousePos.x}px ${mousePos.y}px, black, transparent)`
+          }}
+        />
+
+        {/* 3. 游離量子粒子 (Particles) */}
+        <div 
+          className="absolute inset-0"
+          style={{
+            WebkitMaskImage: `radial-gradient(circle 220px at ${mousePos.x}px ${mousePos.y}px, black, transparent)`,
+            maskImage: `radial-gradient(circle 220px at ${mousePos.x}px ${mousePos.y}px, black, transparent)`
+          }}
+        >
+          {Array.from({ length: 15 }).map((_, i) => (
+            <motion.div
+              key={i}
+              className="absolute w-1 h-1 bg-white rounded-full shadow-[0_0_10px_3px_rgba(255,140,66,0.9)]"
+              style={{ left: `${Math.random() * 100}%`, top: `${Math.random() * 100}%` }}
+              animate={{ 
+                y: [0, -60, 0], 
+                x: [0, (Math.random() - 0.5) * 40, 0],
+                opacity: [0, 1, 0], 
+                scale: [0, 1.5, 0] 
+              }}
+              transition={{ 
+                duration: 2 + Math.random() * 3, 
+                repeat: Infinity, 
+                ease: "easeInOut", 
+                delay: Math.random() * 2 
+              }}
+            />
+          ))}
+        </div>
+      </div>
+      
+      {/* 卡片內容 */}
+      <div className="relative z-10 text-slate-300 mb-5 group-hover:text-[#FF8C42] transition-colors duration-300 group-hover:scale-110 transform origin-left w-fit">
+        <impact.icon size={32} strokeWidth={2.5} />
+      </div>
+      <div className="relative z-10 text-4xl font-black text-slate-900 mb-2 tracking-tight group-hover:translate-x-1 transition-transform duration-300">{impact.value}</div>
+      <div className="relative z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{impact.label}</div>
+      <div className="relative z-10 text-xs text-slate-500 font-medium leading-relaxed mt-auto">{impact.desc}</div>
+    </div>
+  );
+};
+
 // --- 磁吸互動標題組件 ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
@@ -274,17 +333,13 @@ const MagneticHeadline = ({ mouse }) => {
           textShadow: isHovered ? '0 0 30px rgba(255, 140, 66, 0.2)' : 'none'
         }}
       >
-        {/* 在此精準修正：加入逗號 */}
         HI, I AM <span className="italic">REN.</span>
       </motion.h1>
-      <p className="text-xl md:text-2xl font-black text-slate-400 mt-2 tracking-tight pointer-events-none opacity-100 max-w-2xl leading-tight">
-        在不確定中做出合理決策，並持續優化產品價值
-      </p>
     </div>
   );
 };
 
-// --- 頭像組件 ---
+// --- 頭像組件 (★優化：動態漂浮標籤) ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
@@ -311,18 +366,35 @@ const ProfilePhoto = ({ mouse }) => {
           <div className="relative w-64 h-64 md:w-[19rem] md:h-[19rem] rounded-[3.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[6px] border-white bg-slate-100">
             <img src={avatarUrl} alt="Profile" className={`w-full h-full object-cover transition-transform duration-[1200ms] ${isHovered ? 'scale-108' : ''}`} />
           </div>
+          
           <AnimatePresence>
             {isHovered && floatTags.map((tag, idx) => (
               <motion.div
                 key={idx}
-                initial={{ opacity: 0, scale: 0.8, y: 15 }}
-                animate={{ opacity: 1, scale: 1, y: 0 }}
-                exit={{ opacity: 0, scale: 0.8, y: 10 }}
-                transition={{ duration: 0.5, delay: tag.delay, ease: "circOut" }}
-                className="absolute whitespace-nowrap bg-slate-900/80 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest z-30 shadow-xl"
-                style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right, borderLeft: `3px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
+                initial={{ opacity: 0, scale: 0.8 }}
+                animate={{ opacity: 1, scale: 1 }}
+                exit={{ opacity: 0, scale: 0.8 }}
+                transition={{ duration: 0.3, delay: tag.delay, ease: "easeOut" }}
+                className="absolute z-30 pointer-events-none"
+                style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right }}
               >
-                {tag.text}
+                {/* 漂浮動畫層 */}
+                <motion.div
+                  animate={{ 
+                    y: [-6, 6, -6], 
+                    x: [-4, 4, -4],
+                    rotate: [-2, 2, -2]
+                  }}
+                  transition={{ 
+                    duration: 4 + (idx % 3), 
+                    repeat: Infinity, 
+                    ease: "easeInOut" 
+                  }}
+                  className="whitespace-nowrap bg-slate-900/80 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest shadow-xl"
+                  style={{ borderLeft: `3px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
+                >
+                  {tag.text}
+                </motion.div>
               </motion.div>
             ))}
           </AnimatePresence>
@@ -349,20 +421,21 @@ const App = () => {
     { label: "System Delivery", value: "$40M", icon: Cpu, desc: "主導大型政府 XR 專案落地，管理開發與驗收。" }
   ];
 
+  // ★優化：Icon 放大 (size={28}) 且加粗 (strokeWidth={2.2})
   const reallusionBullets = [
-    { icon: <Target className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[商業策略]</span>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
-    { icon: <Search className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[體驗重構]</span>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
-    { icon: <Globe2 className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[架構優化]</span>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
-    { icon: <Package className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[定價與包裝]</span>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
-    { icon: <BarChart3 className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[營運增長]</span>設計營運模組（Promotion / Offer Page），支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
-    { icon: <Users className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[跨國協作]</span>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
+    { icon: <Target size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "商業策略", text: <>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
+    { icon: <Search size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "體驗重構", text: <>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
+    { icon: <Globe2 size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "架構優化", text: <>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
+    { icon: <Package size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "定價包裝", text: <>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
+    { icon: <BarChart3 size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "營運增長", text: <>設計營運模組（Promotion / Offer Page），支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
+    { icon: <Users size={28} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "跨國協作", text: <>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
   ];
 
   const globalPowerBullets = [
-    { icon: <Monitor className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[0到1開發]</span>參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。</> },
-    { icon: <LayoutTemplate className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[多端架構]</span>規劃多端產品架構，設計完整使用流程與互動機制。</> },
-    { icon: <ClipboardList className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[規格撰寫]</span>撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。</> },
-    { icon: <ShieldCheck className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[專案交付]</span>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
+    { icon: <Monitor size={28} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "0到1開發", text: <>參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。</> },
+    { icon: <LayoutTemplate size={28} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "多端架構", text: <>規劃多端產品架構，設計完整使用流程與互動機制。</> },
+    { icon: <ClipboardList size={28} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "規格撰寫", text: <>撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。</> },
+    { icon: <ShieldCheck size={28} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "專案交付", text: <>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
   ];
 
   const projects = [
@@ -377,7 +450,7 @@ const App = () => {
       pmDeliverables: ['Deep Search PRD', 'Information Architecture', 'Data Tracking'],
       highlightMetric: '+20% Success',
       buttons: [
-        { label: "點擊查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
+        { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
     },
@@ -392,14 +465,14 @@ const App = () => {
       pmDeliverables: ['Pricing Matrix', 'Promotion Flow', 'Bundling Strategy'],
       highlightMetric: '+15% CTR',
       buttons: [
-        { label: "點擊查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
+        { label: "查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
       ],
       skills: ['Package Strategy', 'Commercialization', 'CTR Growth']
     },
     {
       id: 'police-xr',
       title: '警署 XR 模擬訓練系統 (0→1)',
-      desc: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備 Stunning visual experiences 的場景驗收，包含 people being blown away 細節。',
+      desc: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收，包含 people being blown away 等精確細節。',
       results: ['完成 4,000 萬標案驗收', '成功導入全台教學體系'],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
@@ -422,8 +495,8 @@ const App = () => {
       pmDeliverables: ['Design System', 'User Research', 'Interactive Prototype'],
       highlightMetric: '>80% Satisfaction',
       buttons: [
-        { label: "完整專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
-        { label: "Figma Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
+        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
+        { label: "Figma", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
         { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?page-id=138:1498&node-id=710-73139&viewport=-9828,1631,0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710:73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
       ],
       skills: ['UI/UX Design', 'Design System', 'Prototyping']
@@ -467,9 +540,7 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
-      {/* 替換原本單調的進度條，導入提案 A：打拼小機車 */}
-      <CuteProgressBar />
-      
+      <AestheticProgressBar />
       <CustomCursor />
       <NeuralMeshBackground mouse={mousePos} />
       
@@ -495,19 +566,20 @@ const App = () => {
               <div className="text-[#FF8C42] font-black text-[10px] tracking-[0.4em] uppercase">Commercialization Product Manager</div>
             </div>
             <MagneticHeadline mouse={mousePos} />
-            <p className="text-lg text-gray-500 max-w-xl mb-10 font-medium leading-relaxed pointer-events-auto">
-              專注於軟體產品商業化營運與體驗優化。我擅長將使用者洞察轉化為商業價值，並確保具備 stunning visual experiences 的系統專案精確落地。
-            </p>
+            
+            {/* ★優化：專業精煉版自我介紹文案 */}
+            <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-10 max-w-2xl text-[15px] md:text-base">
+              <p>
+                你好，我是具備產品策略與歐美平台營運經驗的 PM，於 Reallusion 負責素材電商 ActorCore 與 Content Store 之產品優化與市場策略。工作內容涵蓋搜尋體驗優化、商城推薦內容結構規劃（Theme / Tag），以及與歐美開發者協作商品化頁面規劃。透過使用者行為分析，我持續優化內容匹配與整體瀏覽體驗，提升使用者查找效率與平台轉換表現。
+              </p>
+              <p>
+                過去我也具備 0→1 XR 跨平臺系統建置經驗，能將使用者研究洞察轉化為產品功能規劃與優先順序決策，並在技術限制與商業目標之間取得平衡，推動產品落地與成長。也曾參與 Bus+ APP 產品介面優化專案，累積 B2C 產品優化能力。
+              </p>
+            </div>
+            
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full pointer-events-auto mb-8">
               {impactMetrics.map((impact, i) => (
-                <div key={i} className="flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 rounded-[2.5rem] hover:border-[#FF8C42]/30 transition-all group shadow-sm">
-                  <div className="text-slate-300 mb-4 group-hover:text-[#FF8C42] transition-colors">
-                    <impact.icon size={22} />
-                  </div>
-                  <div className="text-3xl font-black text-slate-900 mb-1">{impact.value}</div>
-                  <div className="text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{impact.label}</div>
-                  <div className="text-xs text-slate-500 font-medium leading-relaxed mt-auto">{impact.desc}</div>
-                </div>
+                <MetricCard key={i} impact={impact} />
               ))}
             </div>
           </div>
@@ -529,9 +601,10 @@ const App = () => {
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#FF8C42] group-hover:scale-125 transition-all" />
               <div className="bg-white p-8 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-3 text-left">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 gap-3 text-left">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
+                    {/* ★優化：加大公司建築 Icon */}
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={24} /><span className="text-xs tracking-widest uppercase">Global E-commerce & SaaS</span></div>
                     <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100">2024.10 - Present</span>
@@ -539,11 +612,22 @@ const App = () => {
                 <h4 className="text-lg font-bold text-slate-800 mb-8 font-black uppercase tracking-wide text-left">
                   商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Commercialization Product Manager</span>
                 </h4>
-                <div className="grid grid-cols-1 gap-5 text-left">
+                
+                <div className="flex flex-col gap-4 text-left">
                   {reallusionBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex gap-4 items-start bg-slate-50/50 p-3 rounded-2xl group-hover:bg-white transition-colors">
-                      <div className="shrink-0 mt-1">{bullet.icon}</div>
-                      <p className="text-slate-600 text-sm leading-relaxed font-medium">{bullet.text}</p>
+                    <div key={idx} className="flex flex-col md:flex-row gap-4 md:gap-8 items-center bg-slate-50/40 p-5 md:p-6 rounded-[1.5rem] hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-orange-100/80">
+                      <div className="flex flex-col items-center justify-center shrink-0 w-full md:w-28 space-y-3 border-b md:border-b-0 md:border-r border-slate-200/60 pb-4 md:pb-0 md:pr-6">
+                        {/* ★優化：加大 Bullet Icon 容器 */}
+                        <div className="p-4 bg-orange-50 rounded-2xl shadow-sm text-[#FF8C42] group-hover/item:scale-110 group-hover/item:-rotate-6 transition-transform duration-300">
+                          {bullet.icon}
+                        </div>
+                        <span className="text-[11px] font-black tracking-widest text-[#FF8C42] text-center whitespace-nowrap">
+                          {bullet.tag}
+                        </span>
+                      </div>
+                      <div className="flex-1 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
+                        {bullet.text}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -553,9 +637,10 @@ const App = () => {
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#2dd4bf] group-hover:scale-125 transition-all" />
               <div className="bg-white p-8 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 text-left">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-10 text-left">
                   <div>
-                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
+                    {/* ★優化：加大公司建築 Icon */}
+                    <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={24} /><span className="text-xs tracking-widest uppercase">B2B / B2G Integration</span></div>
                     <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100">2023.05 - 2024.10</span>
@@ -563,11 +648,22 @@ const App = () => {
                 <h4 className="text-lg font-bold text-slate-800 mb-8 font-black uppercase tracking-wide text-left">
                   產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span>
                 </h4>
-                <div className="grid grid-cols-1 gap-5 text-left">
+                
+                <div className="flex flex-col gap-4 text-left">
                   {globalPowerBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex gap-4 items-start bg-slate-50/50 p-3 rounded-2xl group-hover:bg-white transition-colors">
-                      <div className="shrink-0 mt-1">{bullet.icon}</div>
-                      <p className="text-slate-600 text-sm leading-relaxed font-medium">{bullet.text}</p>
+                    <div key={idx} className="flex flex-col md:flex-row gap-4 md:gap-8 items-center bg-slate-50/40 p-5 md:p-6 rounded-[1.5rem] hover:bg-white hover:shadow-xl hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-teal-100/80">
+                      <div className="flex flex-col items-center justify-center shrink-0 w-full md:w-28 space-y-3 border-b md:border-b-0 md:border-r border-slate-200/60 pb-4 md:pb-0 md:pr-6">
+                        {/* ★優化：加大 Bullet Icon 容器 */}
+                        <div className="p-4 bg-teal-50 rounded-2xl shadow-sm text-[#2dd4bf] group-hover/item:scale-110 group-hover/item:-rotate-6 transition-transform duration-300">
+                          {bullet.icon}
+                        </div>
+                        <span className="text-[11px] font-black tracking-widest text-[#2dd4bf] text-center whitespace-nowrap">
+                          {bullet.tag}
+                        </span>
+                      </div>
+                      <div className="flex-1 text-slate-600 text-[13px] md:text-sm leading-relaxed font-medium">
+                        {bullet.text}
+                      </div>
                     </div>
                   ))}
                 </div>
@@ -658,10 +754,12 @@ const App = () => {
                           href={btn.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(255, 140, 66, 0.2)" }}
+                          whileHover={{ scale: 1.05, y: -2 }}
                           whileTap={{ scale: 0.95 }}
                           className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black text-[10px] tracking-widest transition-all
-                            ${project.isFlagship && bIdx === 0 ? 'bg-[#FF8C42] text-white hover:bg-orange-500' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
+                            ${bIdx === 0 
+                              ? 'bg-gradient-to-r from-[#FF8C42] to-orange-400 text-white shadow-[0_8px_20px_rgba(255,140,66,0.25)] hover:shadow-[0_12px_25px_rgba(255,140,66,0.4)] border border-transparent' 
+                              : 'bg-orange-50 text-[#FF8C42] border border-orange-200 hover:bg-[#FF8C42] hover:text-white hover:border-transparent shadow-sm'}`}
                         >
                           {btn.icon} {btn.label}
                         </motion.a>
@@ -691,7 +789,7 @@ const App = () => {
               { title: '數據驅動決策', icon: <BarChart3 size={28} />, desc: '分析使用者行為與銷售數據，持續優化產品轉化流程與用戶留存。' }
             ].map((item, i) => (
               <div key={i} className="p-10 border border-slate-50 rounded-[3rem] bg-slate-50/30 hover:bg-white hover:shadow-2xl transition-all group relative overflow-hidden transform hover:-translate-y-2 shadow-sm text-left">
-                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 transition-all w-fit">{item.icon}</div>
+                <div className="mb-6 text-slate-300 group-hover:text-[#FF8C42] group-hover:scale-110 transition-all w-fit">{item.icon}</div>
                 <h4 className="text-xl font-black mb-4 text-slate-800 tracking-tight text-left">{item.title}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed font-medium text-left">{item.desc}</p>
                 <div className="absolute bottom-0 left-0 w-0 h-1.5 bg-[#FF8C42] group-hover:w-full transition-all duration-600 ease-out"></div>
@@ -745,7 +843,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V27.1 EASTER EGG
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V30.0 QUANTUM UPGRADE
           </div>
         </div>
       </footer>
