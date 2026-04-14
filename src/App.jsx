@@ -509,6 +509,9 @@ const App = () => {
       isFlagship: true,
       pmDeliverables: ['Deep Search PRD', 'Information Architecture', 'Data Tracking'],
       highlightMetric: '+20% Success',
+      tagLabel: 'REALLUSION PROJECT',
+      tagColor: '#FF8C42',
+      tagBg: 'bg-orange-50',
       buttons: [
         { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
       ],
@@ -524,6 +527,9 @@ const App = () => {
       isFlagship: true,
       pmDeliverables: ['Pricing Matrix', 'Promotion Flow', 'Bundling Strategy'],
       highlightMetric: '+15% CTR',
+      tagLabel: 'REALLUSION PROJECT',
+      tagColor: '#FF8C42',
+      tagBg: 'bg-orange-50',
       buttons: [
         { label: "查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
       ],
@@ -539,6 +545,9 @@ const App = () => {
       isFlagship: false,
       pmDeliverables: ['System Flow Chart', 'Acceptance Criteria', 'Cross-dept Sync'],
       highlightMetric: '$40M Delivered',
+      tagLabel: 'GLOBAL POWER PROJECT',
+      tagColor: '#2dd4bf',
+      tagBg: 'bg-teal-50',
       buttons: [
         { label: "查看展示影片", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> }
       ],
@@ -554,6 +563,9 @@ const App = () => {
       isFlagship: false,
       pmDeliverables: ['Design System', 'User Research', 'Interactive Prototype'],
       highlightMetric: '>80% Satisfaction',
+      tagLabel: 'CO-OP SIDE PROJECT',
+      tagColor: '#64748b',
+      tagBg: 'bg-slate-100',
       buttons: [
         { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
         { label: "Figma", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
@@ -815,9 +827,11 @@ const App = () => {
                 
                 <div className="flex-grow flex flex-col h-full py-2 relative z-20">
                   <div className="flex items-center gap-3 mb-4 text-left">
-                    <div className={`w-8 h-[2px] ${project.isFlagship ? 'bg-[#FF8C42]' : 'bg-slate-300'} group-hover:w-12 transition-all duration-500`}></div>
-                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
-                      {project.isFlagship ? <span className="text-[#FF8C42] bg-orange-50 px-2 py-1 rounded-md">FLAGSHIP INITIATIVE</span> : project.id}
+                    <div className={`w-8 h-[2px] group-hover:w-12 transition-all duration-500`} style={{ backgroundColor: project.tagColor || '#cbd5e1' }}></div>
+                    <span className="text-[10px] font-black uppercase tracking-[0.3em]">
+                      <span className={`px-2 py-1 rounded-md ${project.tagBg}`} style={{ color: project.tagColor }}>
+                        {project.tagLabel}
+                      </span>
                     </span>
                   </div>
 
@@ -887,7 +901,7 @@ const App = () => {
                 key={skill.id}
                 onMouseEnter={() => setHoveredSkill(skill.id)}
                 onMouseLeave={() => setHoveredSkill(null)}
-                className="flex flex-col bg-slate-50/40 border border-slate-100 p-8 md:p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:bg-white transition-all duration-500 transform hover:-translate-y-2 group"
+                className="flex flex-col bg-slate-50/40 border border-slate-100 p-8 md:p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:bg-white transition-all duration-500 transform hover:-translate-y-2 group relative overflow-hidden"
               >
                 <div className="flex items-center gap-4 mb-8">
                   <div 
@@ -926,7 +940,7 @@ const App = () => {
         </div>
       </section>
 
-      <footer id="about" className="py-32 px-6 bg-white border-t border-slate-100 relative overflow-hidden text-center">
+      <footer id="about" className="py-32 px-6 bg-white/40 backdrop-blur-xl border-t border-slate-100/50 relative overflow-hidden text-center z-10">
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-20">
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
@@ -950,7 +964,7 @@ const App = () => {
                   filter: hoveredContact && hoveredContact !== opt.id ? 'blur(3px)' : 'blur(0px)' 
                 }}
                 transition={{ type: 'spring', stiffness: 140, damping: 25 }}
-                className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group cursor-pointer text-left"
+                className="bg-white/60 backdrop-blur-lg p-10 rounded-[3.5rem] border border-white/60 shadow-lg hover:shadow-2xl transition-all overflow-hidden relative group cursor-pointer text-left"
               >
                 <motion.div 
                   className="absolute -top-6 -right-6 w-32 h-32 opacity-5" 
