@@ -34,6 +34,27 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+// --- 背景特效 1：環境漸層流光球 (解決四週空泛感) ---
+const AmbientBlobs = () => (
+  <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60 mix-blend-multiply">
+    <motion.div 
+      animate={{ x: [0, 60, -20, 0], y: [0, 30, -50, 0] }} 
+      transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }} 
+      className="absolute -top-[10%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[#2dd4bf]/10 blur-[120px]" 
+    />
+    <motion.div 
+      animate={{ x: [0, -50, 30, 0], y: [0, 60, -20, 0] }} 
+      transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
+      className="absolute top-[20%] -right-[10%] w-[40vw] h-[55vw] rounded-full bg-[#FF8C42]/10 blur-[120px]" 
+    />
+    <motion.div 
+      animate={{ x: [0, 40, -40, 0], y: [0, -40, 30, 0] }} 
+      transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 5 }} 
+      className="absolute -bottom-[20%] left-[20%] w-[55vw] h-[40vw] rounded-full bg-[#8b5cf6]/10 blur-[120px]" 
+    />
+  </div>
+);
+
 // --- 核心組件：優雅導覽滑鼠 ---
 const CustomCursor = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -221,7 +242,7 @@ const TiltCard = ({ children, className = "" }) => {
 };
 
 // --- 優化：高級流體極光光暈特效 ---
-const MetricCard = ({ impact }) => {
+const MetricCard = ({ impact, className = "" }) => {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const cardRef = useRef(null);
 
@@ -235,9 +256,9 @@ const MetricCard = ({ impact }) => {
     <div 
       ref={cardRef}
       onMouseMove={handleMouseMove}
-      className="relative flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 md:p-8 rounded-[2.5rem] hover:border-[#FF8C42]/30 transition-all duration-500 group shadow-sm overflow-hidden pointer-events-auto"
+      className={`relative flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-5 lg:p-6 rounded-[2rem] hover:border-[#FF8C42]/30 transition-all duration-500 group shadow-sm overflow-hidden pointer-events-auto ${className}`}
     >
-      <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden rounded-[2.5rem]">
+      <div className="absolute inset-0 z-0 opacity-0 group-hover:opacity-100 transition-opacity duration-700 pointer-events-none overflow-hidden rounded-[2rem]">
         <div 
           className="absolute inset-0 transition-opacity duration-300 mix-blend-screen"
           style={{ background: `radial-gradient(circle 260px at ${mousePos.x}px ${mousePos.y}px, rgba(255,140,66,0.18), transparent 70%)` }}
@@ -248,12 +269,12 @@ const MetricCard = ({ impact }) => {
         />
       </div>
       
-      <div className="relative z-10 text-slate-300 mb-5 group-hover:text-[#FF8C42] transition-colors duration-300 group-hover:scale-110 transform origin-left w-fit">
-        <impact.icon size={32} strokeWidth={2.5} />
+      <div className="relative z-10 text-slate-300 mb-4 group-hover:text-[#FF8C42] transition-colors duration-300 group-hover:scale-110 transform origin-left w-fit">
+        <impact.icon size={28} strokeWidth={2.5} />
       </div>
-      <div className="relative z-10 text-4xl font-black text-slate-900 mb-2 tracking-tight group-hover:translate-x-1 transition-transform duration-300">{impact.value}</div>
-      <div className="relative z-10 text-[10px] font-black text-slate-400 uppercase tracking-widest mb-3">{impact.label}</div>
-      <div className="relative z-10 text-xs text-slate-500 font-medium leading-relaxed mt-auto">{impact.desc}</div>
+      <div className="relative z-10 text-[28px] xl:text-3xl font-black text-slate-900 mb-1 tracking-tighter group-hover:translate-x-1 transition-transform duration-300 whitespace-nowrap">{impact.value}</div>
+      <div className="relative z-10 text-[9px] xl:text-[10px] font-black text-slate-400 uppercase tracking-widest mb-2 leading-tight">{impact.label}</div>
+      <div className="relative z-10 text-[11px] xl:text-xs text-slate-500 font-medium leading-relaxed mt-auto break-words">{impact.desc}</div>
     </div>
   );
 };
@@ -300,7 +321,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件 (★優化：大頭照放大約 25% ➔ md:w-[28rem] md:h-[28rem]) ---
+// --- 頭像組件 ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
@@ -324,7 +345,6 @@ const ProfilePhoto = ({ mouse }) => {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           className="relative cursor-none z-10"
         >
-          {/* 大頭照容器放大 (變更為 md:w-[28rem] md:h-[28rem]) */}
           <div className="relative w-80 h-80 md:w-[28rem] md:h-[28rem] rounded-[4rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[6px] border-white bg-slate-100">
             <img src={avatarUrl} alt="Profile" className={`w-full h-full object-cover transition-transform duration-[1200ms] ${isHovered ? 'scale-105' : ''}`} />
           </div>
@@ -340,7 +360,6 @@ const ProfilePhoto = ({ mouse }) => {
                 className="absolute z-30 pointer-events-none"
                 style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right }}
               >
-                {/* 漂浮動畫層 (標籤字體變大 px-6 py-3 text-sm) */}
                 <motion.div
                   animate={{ 
                     y: [-8, 8, -8], 
@@ -366,6 +385,57 @@ const ProfilePhoto = ({ mouse }) => {
   );
 };
 
+// --- ★ 優化組件：趣味閃躲標籤元件 (Playful Dodge Tag) ---
+const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
+  const displayText = text || tag;
+  const [pos, setPos] = useState({ x: 0, y: 0 });
+  const [isHovered, setIsHovered] = useState(false);
+  const [rotation, setRotation] = useState(0);
+
+  const handleHover = () => {
+    const angle = Math.random() * Math.PI * 2;
+    const distance = 8 + Math.random() * 15;
+    setPos({ 
+      x: Math.cos(angle) * distance, 
+      y: Math.sin(angle) * distance - 4 
+    });
+    setRotation((Math.random() - 0.5) * 10); 
+    setIsHovered(true);
+  };
+
+  const handleLeave = () => {
+    setPos({ x: 0, y: 0 });
+    setRotation(0);
+    setIsHovered(false);
+  };
+
+  const dynamicStyle = color ? {
+    backgroundColor: isHovered ? color : '#ffffff',
+    color: isHovered ? '#ffffff' : '#64748b',
+    borderColor: isHovered ? color : '#e2e8f0',
+  } : {};
+
+  const baseColorClass = colorClass || (color ? "" : "bg-white border-slate-200 text-slate-400 hover:border-[#FF8C42] hover:text-[#FF8C42]");
+
+  return (
+    <motion.span
+      onMouseEnter={handleHover}
+      onMouseLeave={handleLeave}
+      animate={{
+        x: pos.x,
+        y: pos.y,
+        rotate: rotation,
+        scale: isHovered ? 1.05 : 1,
+        ...dynamicStyle
+      }}
+      transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      className={`text-[9px] font-black px-3 py-1.5 border rounded-full uppercase tracking-widest cursor-pointer inline-block z-10 relative shadow-sm transition-colors duration-300 ${baseColorClass} ${isHovered ? 'shadow-md z-20' : ''}`}
+    >
+      {displayText}
+    </motion.span>
+  );
+};
+
 // --- 主程式組件 ---
 const App = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -384,14 +454,13 @@ const App = () => {
     { label: "System Delivery", value: "$40M", icon: Cpu, desc: "主導大型政府 XR 專案落地，管理開發與驗收。" }
   ];
 
-  // ★優化：Career Path 瘦身緊湊版 (調整 margin, padding, gap)
   const reallusionBullets = [
     { icon: <Target size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "商業策略", text: <>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
     { icon: <Search size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "體驗重構", text: <>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
     { icon: <Globe2 size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "架構優化", text: <>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
     { icon: <Package size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "定價包裝", text: <>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
     { icon: <BarChart3 size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "營運增長", text: <>設計營運模組（Promotion / Offer Page），支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
-    { icon: <Users size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "跨國協作", text: <>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
+    { icon: <Users size={16} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "跨國協作", text: <>與海外團隊（內容製作 / 業務 / 行銷）協作，推推產品落地與全球市場策略。</> }
   ];
 
   const globalPowerBullets = [
@@ -466,7 +535,6 @@ const App = () => {
     }
   ];
 
-  // ★優化：重構 Professional Skills 資料結構
   const skillsData = [
     {
       id: 'strategy',
@@ -550,6 +618,7 @@ const App = () => {
     <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
       <AestheticProgressBar />
       <CustomCursor />
+      <AmbientBlobs />
       <NeuralMeshBackground mouse={mousePos} />
       
       <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
@@ -565,7 +634,6 @@ const App = () => {
         </div>
       </nav>
 
-      {/* Hero Section */}
       <section id="hero" className="relative min-h-screen pt-20 pb-12 flex flex-col justify-center px-6 md:px-12 z-10 pointer-events-none text-left">
         <div className="max-w-[1300px] mx-auto w-full flex flex-col md:flex-row items-center justify-between gap-12 lg:gap-20">
           <div className="w-full md:w-[50%] flex flex-col items-start">
@@ -584,9 +652,13 @@ const App = () => {
               </p>
             </div>
             
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full pointer-events-auto mb-8">
+            <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-3 gap-4 w-full pointer-events-auto mb-8">
               {impactMetrics.map((impact, i) => (
-                <MetricCard key={i} impact={impact} />
+                <MetricCard 
+                  key={i} 
+                  impact={impact} 
+                  className={i === 2 ? 'sm:col-span-2 xl:col-span-1' : ''} 
+                />
               ))}
             </div>
           </div>
@@ -596,7 +668,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Career Path Section (★瘦身緊湊版) */}
       <section id="experience" className="py-24 px-6 md:px-12 relative z-10 bg-slate-50/50 text-left">
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-6 mb-16">
@@ -619,10 +690,10 @@ const App = () => {
                   商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Commercialization Product Manager</span>
                 </h4>
                 
-                <div className="flex flex-col gap-3 text-left">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-left">
                   {reallusionBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex flex-col md:flex-row gap-3 md:gap-5 items-center bg-slate-50/40 p-4 rounded-[1.25rem] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-orange-100/80">
-                      <div className="flex flex-col items-center justify-center shrink-0 w-full md:w-20 space-y-2 border-b md:border-b-0 md:border-r border-slate-200/60 pb-2 md:pb-0 md:pr-3">
+                    <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-slate-50/40 p-4 rounded-[1.25rem] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-orange-100/80 h-full">
+                      <div className="flex flex-col items-center justify-center shrink-0 w-full sm:w-16 space-y-2 border-b sm:border-b-0 sm:border-r border-slate-200/60 pb-2 sm:pb-0 sm:pr-3">
                         <div className="p-2 bg-orange-50 rounded-[0.8rem] shadow-sm group-hover/item:scale-110 group-hover/item:-rotate-6 transition-transform duration-300">
                           {bullet.icon}
                         </div>
@@ -653,10 +724,10 @@ const App = () => {
                   產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span>
                 </h4>
                 
-                <div className="flex flex-col gap-3 text-left">
+                <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 text-left">
                   {globalPowerBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex flex-col md:flex-row gap-3 md:gap-5 items-center bg-slate-50/40 p-4 rounded-[1.25rem] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-teal-100/80">
-                      <div className="flex flex-col items-center justify-center shrink-0 w-full md:w-20 space-y-2 border-b md:border-b-0 md:border-r border-slate-200/60 pb-2 md:pb-0 md:pr-3">
+                    <div key={idx} className="flex flex-col sm:flex-row gap-3 items-start sm:items-center bg-slate-50/40 p-4 rounded-[1.25rem] hover:bg-white hover:shadow-md hover:-translate-y-1 transition-all duration-300 group/item cursor-default border border-transparent hover:border-teal-100/80 h-full">
+                      <div className="flex flex-col items-center justify-center shrink-0 w-full sm:w-16 space-y-2 border-b sm:border-b-0 sm:border-r border-slate-200/60 pb-2 sm:pb-0 sm:pr-3">
                         <div className="p-2 bg-teal-50 rounded-[0.8rem] shadow-sm group-hover/item:scale-110 group-hover/item:-rotate-6 transition-transform duration-300">
                           {bullet.icon}
                         </div>
@@ -676,7 +747,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Projects Showcase */}
       <section id="projects" className="py-24 px-6 md:px-12 relative z-10 text-left">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center gap-6 mb-16 text-left">
@@ -731,11 +801,9 @@ const App = () => {
                     <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
                       <Activity size={12} className="text-slate-400" /> PM Deliverables
                     </div>
-                    <div className="flex gap-2 flex-wrap">
+                    <div className="flex gap-2 flex-wrap relative min-h-[40px] items-start">
                       {project.pmDeliverables.map(d => (
-                        <span key={d} className="text-[10px] font-bold text-slate-600 bg-slate-100/80 border border-slate-200 px-2.5 py-1.5 rounded-lg">
-                          {d}
-                        </span>
+                        <PlayfulDodgeTag key={d} tag={d} color={project.isFlagship ? '#FF8C42' : '#2dd4bf'} />
                       ))}
                     </div>
                   </div>
@@ -776,7 +844,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Professional Skills Section (★旗艦重構版：三大類、條列式、動態標籤) */}
       <section id="expertise" className="py-24 px-6 md:px-12 bg-white relative z-10 border-t border-slate-50 text-left">
         <div className="max-w-[1200px] mx-auto">
           <div className="flex items-center gap-6 mb-20 text-left">
@@ -792,7 +859,6 @@ const App = () => {
                 onMouseLeave={() => setHoveredSkill(null)}
                 className="flex flex-col bg-slate-50/40 border border-slate-100 p-8 md:p-10 rounded-[3rem] shadow-sm hover:shadow-2xl hover:bg-white transition-all duration-500 transform hover:-translate-y-2 group"
               >
-                {/* 標題與圖示 */}
                 <div className="flex items-center gap-4 mb-8">
                   <div 
                     className="p-4 rounded-2xl bg-white shadow-sm transition-transform duration-500 group-hover:scale-110 group-hover:-rotate-6"
@@ -805,7 +871,6 @@ const App = () => {
                   </h3>
                 </div>
 
-                {/* 條列式技能清單 */}
                 <ul className="space-y-4 mb-10 flex-grow">
                   {skill.bullets.map((bullet, i) => (
                     <li key={i} className="flex items-start gap-3">
@@ -815,24 +880,12 @@ const App = () => {
                   ))}
                 </ul>
 
-                {/* 互動式標籤群 */}
-                <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-slate-200/60">
+                <div className="flex flex-wrap gap-2 mt-auto pt-6 border-t border-slate-200/60 relative min-h-[80px]">
                   {skill.tags.map((tag, tagIndex) => (
-                    <motion.span 
-                      key={tagIndex}
-                      animate={hoveredSkill === skill.id ? { y: [0, -3, 0] } : { y: 0 }}
-                      transition={{ duration: 0.4, delay: tagIndex * 0.05, ease: "easeOut" }}
-                      className="text-[10px] font-black px-3 py-1.5 bg-white border border-slate-200 text-slate-500 rounded-lg hover:text-white transition-colors cursor-default"
-                      style={{ 
-                        ':hover': { backgroundColor: skill.color, borderColor: skill.color } 
-                      }}
-                    >
-                      {tag}
-                    </motion.span>
+                    <PlayfulDodgeTag key={tagIndex} tag={tag} color={skill.color} />
                   ))}
                 </div>
 
-                {/* 底部裝飾線 */}
                 <div 
                   className="absolute bottom-0 left-0 h-1.5 w-0 group-hover:w-full transition-all duration-700 ease-out rounded-b-[3rem]"
                   style={{ backgroundColor: skill.color }}
@@ -843,7 +896,6 @@ const App = () => {
         </div>
       </section>
 
-      {/* Contact & Resources Footer (★加入趣味互動特效) */}
       <footer id="about" className="py-32 px-6 bg-white border-t border-slate-100 relative overflow-hidden text-center">
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-20">
@@ -870,7 +922,6 @@ const App = () => {
                 transition={{ type: 'spring', stiffness: 140, damping: 25 }}
                 className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all overflow-hidden relative group cursor-pointer text-left"
               >
-                {/* 背景超大浮水印圖示 (Hover時緩慢旋轉放大) */}
                 <motion.div 
                   className="absolute -top-6 -right-6 w-32 h-32 opacity-5" 
                   style={{ color: opt.color }}
@@ -880,7 +931,6 @@ const App = () => {
                   <opt.icon size={130} strokeWidth={1} />
                 </motion.div>
 
-                {/* 卡片內部跟隨的微漸層光暈 */}
                 <div 
                   className="absolute inset-0 opacity-0 group-hover:opacity-100 transition-opacity duration-500 pointer-events-none mix-blend-overlay"
                   style={{ background: `radial-gradient(circle at 80% 20%, ${opt.color}22 0%, transparent 60%)` }}
@@ -888,7 +938,6 @@ const App = () => {
 
                 <div className="relative z-10 flex flex-col h-full text-left">
                   <div className="flex items-center gap-4 mb-8 text-left">
-                    {/* 小圖示 (Hover時產生俏皮彈跳) */}
                     <motion.div 
                       className="p-4 rounded-[1.5rem] bg-slate-50 group-hover:bg-white group-hover:shadow-md transition-all" 
                       style={{ color: opt.color }}
@@ -916,7 +965,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V30.2 FINAL POLISH
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.1 FIX
           </div>
         </div>
       </footer>
