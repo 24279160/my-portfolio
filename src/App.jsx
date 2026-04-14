@@ -34,28 +34,47 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-// --- 背景特效 1：環境漸層流光球 ---
-const AmbientBlobs = () => (
-  <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60 mix-blend-multiply">
-    <motion.div 
-      animate={{ x: [0, 60, -20, 0], y: [0, 30, -50, 0] }} 
-      transition={{ duration: 20, repeat: Infinity, ease: "easeInOut" }} 
-      className="absolute -top-[10%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[#2dd4bf]/10 blur-[120px]" 
-    />
-    <motion.div 
-      animate={{ x: [0, -50, 30, 0], y: [0, 60, -20, 0] }} 
-      transition={{ duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
-      className="absolute top-[20%] -right-[10%] w-[40vw] h-[55vw] rounded-full bg-[#FF8C42]/10 blur-[120px]" 
-    />
-    <motion.div 
-      animate={{ x: [0, 40, -40, 0], y: [0, -40, 30, 0] }} 
-      transition={{ duration: 22, repeat: Infinity, ease: "easeInOut", delay: 5 }} 
-      className="absolute -bottom-[20%] left-[20%] w-[55vw] h-[40vw] rounded-full bg-[#94a3b8]/15 blur-[120px]" 
-    />
-  </div>
-);
+// --- ★ 新增：智慧設備偵測 Hook (用來判斷是否為手機或平板) ---
+const useIsMobile = () => {
+  const [isMobile, setIsMobile] = useState(false);
+  useEffect(() => {
+    const checkMobile = () => {
+      const match = window.innerWidth < 768 || window.matchMedia('(pointer: coarse)').matches;
+      setIsMobile(match);
+    };
+    checkMobile();
+    window.addEventListener('resize', checkMobile);
+    return () => window.removeEventListener('resize', checkMobile);
+  }, []);
+  return isMobile;
+};
 
-// --- 核心組件：優雅導覽滑鼠 ---
+// --- 背景特效 1：環境漸層流光球 (★ 手機端效能優化：降級為靜態中度模糊) ---
+const AmbientBlobs = ({ isMobile }) => {
+  const blurClass = isMobile ? "blur-[60px]" : "blur-[120px]";
+  
+  return (
+    <div className="fixed inset-0 pointer-events-none z-0 overflow-hidden opacity-60 mix-blend-multiply">
+      <motion.div 
+        animate={isMobile ? { x: 0, y: 0 } : { x: [0, 60, -20, 0], y: [0, 30, -50, 0] }} 
+        transition={isMobile ? {} : { duration: 20, repeat: Infinity, ease: "easeInOut" }} 
+        className={`absolute -top-[10%] -left-[10%] w-[45vw] h-[45vw] rounded-full bg-[#2dd4bf]/10 ${blurClass}`} 
+      />
+      <motion.div 
+        animate={isMobile ? { x: 0, y: 0 } : { x: [0, -50, 30, 0], y: [0, 60, -20, 0] }} 
+        transition={isMobile ? {} : { duration: 25, repeat: Infinity, ease: "easeInOut", delay: 2 }} 
+        className={`absolute top-[20%] -right-[10%] w-[40vw] h-[55vw] rounded-full bg-[#FF8C42]/10 ${blurClass}`} 
+      />
+      <motion.div 
+        animate={isMobile ? { x: 0, y: 0 } : { x: [0, 40, -40, 0], y: [0, -40, 30, 0] }} 
+        transition={isMobile ? {} : { duration: 22, repeat: Infinity, ease: "easeInOut", delay: 5 }} 
+        className={`absolute -bottom-[20%] left-[20%] w-[55vw] h-[40vw] rounded-full bg-[#94a3b8]/15 ${blurClass}`} 
+      />
+    </div>
+  );
+};
+
+// --- 核心組件：優雅導覽滑鼠 (★ 電腦端限定) ---
 const CustomCursor = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -134,7 +153,7 @@ const AestheticProgressBar = () => {
   );
 };
 
-// --- 背景組件：神經脈動背景 ---
+// --- 背景組件：神經脈動背景 (★ 電腦端限定，保護手機效能) ---
 const NeuralMeshBackground = ({ mouse }) => {
   const canvasRef = useRef(null);
   const anchors = useMemo(() => [
@@ -241,7 +260,7 @@ const TiltCard = ({ children, className = "" }) => {
   );
 };
 
-// --- 優化：數據卡片 (確保最小字體 12px) ---
+// --- 數據卡片 ---
 const MetricCard = ({ impact, className = "" }) => {
   const [mousePos, setMousePos] = useState({ x: -1000, y: -1000 });
   const cardRef = useRef(null);
@@ -405,7 +424,7 @@ const ProfileDodgeTag = ({ tag, idx }) => {
   );
 };
 
-// --- 頭像組件 (套用逃跑毛玻璃) ---
+// --- 頭像組件 ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
@@ -444,7 +463,7 @@ const ProfilePhoto = ({ mouse }) => {
   );
 };
 
-// --- 趣味閃躲標籤元件 (專案與技能卡片使用) ---
+// --- 趣味閃躲標籤元件 ---
 const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
   const displayText = text || tag;
   const [pos, setPos] = useState({ x: 0, y: 0 });
@@ -497,15 +516,20 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
 
 // --- 主程式組件 ---
 const App = () => {
+  // ★ 使用偵測設備的 Hook
+  const isMobile = useIsMobile();
+  
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [hoveredContact, setHoveredContact] = useState(null);
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
   useEffect(() => {
+    // 若為手機端，則解除全域滑鼠監聽以節省效能
+    if (isMobile) return;
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', handleMouseMove);
     return () => window.removeEventListener('mousemove', handleMouseMove);
-  }, []);
+  }, [isMobile]);
 
   const impactMetrics = [
     { label: "Search Success", value: "+20%", icon: Zap, desc: "重構搜尋邏輯與 IA，提升搜尋匹配效率。" },
@@ -545,7 +569,6 @@ const App = () => {
       tagBg: 'bg-orange-50',
       buttons: [
         { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
-        // ★ 新增 ActorCore 影片 Demo 連結
         { label: "Deep Search 實機展示", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
@@ -582,7 +605,6 @@ const App = () => {
       tagColor: '#2dd4bf',
       tagBg: 'bg-teal-50',
       buttons: [
-        // ★ 分流與文案更新：區分新聞與 KOL 影片
         { label: "新聞報導實錄", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> },
         { label: "KOL 實機展示", url: "https://youtu.be/o4sykcmklbo?t=2006", icon: <Play size={14} fill="currentColor" /> }
       ],
@@ -690,11 +712,12 @@ const App = () => {
   };
 
   return (
-    <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
+    <div className="min-h-screen bg-white text-slate-800 font-sans relative overflow-x-hidden" style={{ cursor: isMobile ? 'auto' : 'none' }}>
       <AestheticProgressBar />
-      <CustomCursor />
-      <AmbientBlobs />
-      <NeuralMeshBackground mouse={mousePos} />
+      {/* ★ 只有非手機端才渲染自訂滑鼠與 Canvas 粒子特效 */}
+      {!isMobile && <CustomCursor />}
+      <AmbientBlobs isMobile={isMobile} />
+      {!isMobile && <NeuralMeshBackground mouse={mousePos} />}
       
       <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
         <div className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
@@ -728,7 +751,6 @@ const App = () => {
               </p>
             </div>
 
-            {/* ★ CTA 動線修正：指向 experience 區塊 */}
             <div className="flex gap-4 mb-10 pointer-events-auto">
               <button 
                 onClick={() => scrollTo('experience')} 
@@ -763,7 +785,7 @@ const App = () => {
           </div>
           <div className="space-y-8 md:space-y-10 relative before:absolute before:inset-0 before:ml-[11px] before:w-[1.5px] before:bg-gradient-to-b before:from-[#FF8C42] before:via-[#2dd4bf] before:to-transparent">
             
-            <motion.div whileHover={{ x: 8 }} className="relative pl-10 md:pl-16 group pointer-events-auto">
+            <motion.div whileHover={isMobile ? {} : { x: 8 }} className="relative pl-10 md:pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#FF8C42] group-hover:scale-125 transition-all" />
               <div className="bg-white p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-3 text-left">
@@ -799,7 +821,7 @@ const App = () => {
               </div>
             </motion.div>
 
-            <motion.div whileHover={{ x: 8 }} className="relative pl-10 md:pl-16 group pointer-events-auto">
+            <motion.div whileHover={isMobile ? {} : { x: 8 }} className="relative pl-10 md:pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#2dd4bf] group-hover:scale-125 transition-all" />
               <div className="bg-white p-5 md:p-8 rounded-[2rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
                 <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 md:mb-8 gap-3 text-left">
@@ -1055,7 +1077,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.9
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.10
           </div>
         </div>
       </footer>
