@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useRef, useMemo } from 'react';
-import { motion, AnimatePresence, useScroll, useSpring } from 'framer-motion';
+import { motion, AnimatePresence, useScroll, useSpring, useTransform } from 'framer-motion';
 import { 
   Target, 
   Layers, 
@@ -25,7 +25,8 @@ import {
   ExternalLink,
   Play,
   PenTool,
-  Navigation
+  Navigation,
+  Activity
 } from 'lucide-react';
 
 // --- 核心組件：優雅導覽滑鼠 ---
@@ -82,6 +83,49 @@ const CustomCursor = () => {
         <div className="absolute top-0 right-0 w-3 h-3 border-t-2 border-r-2 border-current rounded-tr-sm" />
         <div className="absolute bottom-0 left-0 w-3 h-3 border-b-2 border-l-2 border-current rounded-bl-sm" />
         <div className="absolute bottom-0 right-0 w-3 h-3 border-b-2 border-r-2 border-current rounded-br-sm" />
+      </motion.div>
+    </div>
+  );
+};
+
+// --- 可愛互動進度條 (提案 A：打拼小機車) ---
+const CuteProgressBar = () => {
+  const { scrollYProgress } = useScroll();
+  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
+  const xPos = useTransform(scrollYProgress, [0, 1], ['0%', '100%']);
+
+  const [isJumping, setIsJumping] = useState(false);
+  
+  const handleInteraction = () => {
+    setIsJumping(true);
+    setTimeout(() => setIsJumping(false), 400); // 400ms 後恢復原狀
+  };
+
+  return (
+    <div 
+      className="fixed top-0 left-0 right-0 h-1.5 z-[110] bg-slate-100/50 backdrop-blur-sm cursor-pointer pointer-events-auto" 
+      onClick={handleInteraction}
+    >
+      {/* 橘色進度條本體 */}
+      <motion.div className="absolute top-0 left-0 bottom-0 bg-[#FF8C42] origin-left" style={{ scaleX, width: '100%' }} />
+      
+      {/* 騎車的 PM */}
+      <motion.div
+        className="absolute top-0 left-0 -mt-3.5 text-[22px] select-none"
+        style={{ left: xPos, x: '-50%' }}
+        animate={{ 
+          y: isJumping ? -15 : 0, 
+          rotate: isJumping ? -20 : 0 
+        }}
+        transition={{ type: "spring", stiffness: 400, damping: 15 }}
+      >
+        <div className="relative group">
+          🛵
+          {/* Hover 提示對話框 */}
+          <div className="absolute -bottom-8 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity bg-slate-900 text-white text-[9px] font-black tracking-widest px-2.5 py-1.5 rounded-full whitespace-nowrap shadow-lg pointer-events-none before:content-[''] before:absolute before:-top-1 before:left-1/2 before:-translate-x-1/2 before:border-4 before:border-transparent before:border-b-slate-900">
+            Boop me!
+          </div>
+        </div>
       </motion.div>
     </div>
   );
@@ -230,7 +274,8 @@ const MagneticHeadline = ({ mouse }) => {
           textShadow: isHovered ? '0 0 30px rgba(255, 140, 66, 0.2)' : 'none'
         }}
       >
-        HI I AM <span className="italic">REN.</span>
+        {/* 在此精準修正：加入逗號 */}
+        HI, I AM <span className="italic">REN.</span>
       </motion.h1>
       <p className="text-xl md:text-2xl font-black text-slate-400 mt-2 tracking-tight pointer-events-none opacity-100 max-w-2xl leading-tight">
         在不確定中做出合理決策，並持續優化產品價值
@@ -291,8 +336,6 @@ const ProfilePhoto = ({ mouse }) => {
 const App = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [hoveredContact, setHoveredContact] = useState(null);
-  const { scrollYProgress } = useScroll();
-  const scaleX = useSpring(scrollYProgress, { stiffness: 100, damping: 30, restDelta: 0.001 });
   
   useEffect(() => {
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -307,19 +350,19 @@ const App = () => {
   ];
 
   const reallusionBullets = [
-    { icon: <Target className="text-orange-500" size={16} />, text: "負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。" },
-    { icon: <Search className="text-orange-500" size={16} />, text: "分析使用者長尾搜尋行為 (Sentence vs Keyword)，定義 Deep Search 產品規格。提升搜尋成功率 20% 並降低搜尋摩擦。" },
-    { icon: <Globe2 className="text-orange-500" size={16} />, text: "規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 15–25%。" },
-    { icon: <Package className="text-orange-500" size={16} />, text: "建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。" },
-    { icon: <BarChart3 className="text-orange-500" size={16} />, text: "設計營運模組（Promotion / Offer Page / Tag），支援行銷活動與流量轉換 (CTR 提升約 10–15%)。" },
-    { icon: <Users className="text-orange-500" size={16} />, text: "與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。" }
+    { icon: <Target className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[商業策略]</span>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
+    { icon: <Search className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[體驗重構]</span>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
+    { icon: <Globe2 className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[架構優化]</span>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
+    { icon: <Package className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[定價與包裝]</span>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
+    { icon: <BarChart3 className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[營運增長]</span>設計營運模組（Promotion / Offer Page），支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
+    { icon: <Users className="text-orange-500" size={16} />, text: <><span className="font-black text-[#FF8C42] mr-2">[跨國協作]</span>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
   ];
 
   const globalPowerBullets = [
-    { icon: <Monitor className="text-teal-500" size={16} />, text: "參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。" },
-    { icon: <LayoutTemplate className="text-teal-500" size={16} />, text: "規劃多端產品架構，設計完整使用流程與互動機制。" },
-    { icon: <ClipboardList className="text-teal-500" size={16} />, text: "撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。" },
-    { icon: <ShieldCheck className="text-teal-500" size={16} />, text: "參與政府專案執行，確保產品符合實際應用場景與驗收標準。" }
+    { icon: <Monitor className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[0到1開發]</span>參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。</> },
+    { icon: <LayoutTemplate className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[多端架構]</span>規劃多端產品架構，設計完整使用流程與互動機制。</> },
+    { icon: <ClipboardList className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[規格撰寫]</span>撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。</> },
+    { icon: <ShieldCheck className="text-teal-500" size={16} />, text: <><span className="font-black text-[#2dd4bf] mr-2">[專案交付]</span>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
   ];
 
   const projects = [
@@ -330,6 +373,9 @@ const App = () => {
       results: ['搜尋成功率提升 20%', '優化商城推薦內容結構'],
       img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7", 
       icon: Search,
+      isFlagship: true,
+      pmDeliverables: ['Deep Search PRD', 'Information Architecture', 'Data Tracking'],
+      highlightMetric: '+20% Success',
       buttons: [
         { label: "點擊查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
       ],
@@ -342,6 +388,9 @@ const App = () => {
       results: ['CTR 提升約 10–15%', '客製化 Page 驅動流量轉換'],
       img: "https://lh3.googleusercontent.com/d/1onA8n6Ydj4qu3SYtZi57ciEXgktuxICE", 
       icon: Package,
+      isFlagship: true,
+      pmDeliverables: ['Pricing Matrix', 'Promotion Flow', 'Bundling Strategy'],
+      highlightMetric: '+15% CTR',
       buttons: [
         { label: "點擊查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
       ],
@@ -354,6 +403,9 @@ const App = () => {
       results: ['完成 4,000 萬標案驗收', '成功導入全台教學體系'],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
+      isFlagship: false,
+      pmDeliverables: ['System Flow Chart', 'Acceptance Criteria', 'Cross-dept Sync'],
+      highlightMetric: '$40M Delivered',
       buttons: [
         { label: "查看展示影片", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> }
       ],
@@ -366,6 +418,9 @@ const App = () => {
       results: ['目標受眾滿意度突破 80%', '建立可擴充的 UI 元件化規範'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
+      isFlagship: false,
+      pmDeliverables: ['Design System', 'User Research', 'Interactive Prototype'],
+      highlightMetric: '>80% Satisfaction',
       buttons: [
         { label: "完整專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
         { label: "Figma Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
@@ -412,14 +467,16 @@ const App = () => {
 
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans relative cursor-none overflow-x-hidden">
-      <motion.div className="fixed top-0 left-0 right-0 h-1 bg-[#FF8C42] z-[110] origin-left" style={{ scaleX }} />
+      {/* 替換原本單調的進度條，導入提案 A：打拼小機車 */}
+      <CuteProgressBar />
+      
       <CustomCursor />
       <NeuralMeshBackground mouse={mousePos} />
       
-      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm">
+      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
         <div className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-          <div className="w-8 h-8 bg-accent rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
-          <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-dark">HAO</span></span>
+          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
+          <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-slate-600">HAO</span></span>
         </div>
         <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
           <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
@@ -471,18 +528,20 @@ const App = () => {
             
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#FF8C42] group-hover:scale-125 transition-all" />
-              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3 text-left">
+              <div className="bg-white p-8 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 gap-3 text-left">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
                     <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100">2024.10 - Present</span>
                 </div>
-                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Commercialization Product Manager</span></h4>
-                <div className="grid grid-cols-1 gap-4 text-left">
+                <h4 className="text-lg font-bold text-slate-800 mb-8 font-black uppercase tracking-wide text-left">
+                  商品化經理 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Commercialization Product Manager</span>
+                </h4>
+                <div className="grid grid-cols-1 gap-5 text-left">
                   {reallusionBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex gap-4 items-start">
+                    <div key={idx} className="flex gap-4 items-start bg-slate-50/50 p-3 rounded-2xl group-hover:bg-white transition-colors">
                       <div className="shrink-0 mt-1">{bullet.icon}</div>
                       <p className="text-slate-600 text-sm leading-relaxed font-medium">{bullet.text}</p>
                     </div>
@@ -493,18 +552,20 @@ const App = () => {
 
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#2dd4bf] group-hover:scale-125 transition-all" />
-              <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 text-left">
+              <div className="bg-white p-8 md:p-10 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-8 text-left">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
                     <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100">2023.05 - 2024.10</span>
                 </div>
-                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span></h4>
-                <div className="grid grid-cols-1 gap-4 text-left">
+                <h4 className="text-lg font-bold text-slate-800 mb-8 font-black uppercase tracking-wide text-left">
+                  產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span>
+                </h4>
+                <div className="grid grid-cols-1 gap-5 text-left">
                   {globalPowerBullets.map((bullet, idx) => (
-                    <div key={idx} className="flex gap-4 items-start">
+                    <div key={idx} className="flex gap-4 items-start bg-slate-50/50 p-3 rounded-2xl group-hover:bg-white transition-colors">
                       <div className="shrink-0 mt-1">{bullet.icon}</div>
                       <p className="text-slate-600 text-sm leading-relaxed font-medium">{bullet.text}</p>
                     </div>
@@ -526,29 +587,70 @@ const App = () => {
           
           <div className="space-y-16 pointer-events-auto">
             {projects.map((project, idx) => (
-              <TiltCard key={idx} className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default">
-                <div className="w-full md:w-[48%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0">
+              <TiltCard 
+                key={idx} 
+                className={`bg-white p-8 md:p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default
+                  ${project.isFlagship ? 'rounded-[4rem]' : 'rounded-[3.5rem]'}
+                `}
+              >
+                <div className={`w-full md:w-[48%] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0 ${project.isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
                   <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
+                  
+                  <motion.div 
+                    initial={{ opacity: 0, y: 15 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    transition={{ delay: 0.4 }}
+                    className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30"
+                  >
+                    <div className="flex items-center gap-2 mb-1">
+                      <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
+                      <span className="text-[8px] font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
+                    </div>
+                    <div className={`font-black ${project.isFlagship ? 'text-xl' : 'text-lg'} text-slate-900 tracking-tight`}>
+                      {project.highlightMetric}
+                    </div>
+                  </motion.div>
                 </div>
                 
                 <div className="flex-grow flex flex-col h-full py-2 relative z-20">
                   <div className="flex items-center gap-3 mb-4 text-left">
-                    <div className="w-8 h-[1px] bg-[#FF8C42] group-hover:w-12 transition-all duration-500"></div>
-                    <span className="text-[10px] font-black text-[#FF8C42] uppercase tracking-[0.3em]">{project.id}</span>
+                    <div className={`w-8 h-[2px] ${project.isFlagship ? 'bg-[#FF8C42]' : 'bg-slate-300'} group-hover:w-12 transition-all duration-500`}></div>
+                    <span className="text-[10px] font-black text-slate-400 uppercase tracking-[0.3em]">
+                      {project.isFlagship ? <span className="text-[#FF8C42] bg-orange-50 px-2 py-1 rounded-md">FLAGSHIP INITIATIVE</span> : project.id}
+                    </span>
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-5 leading-tight group-hover:text-[#FF8C42] transition-colors text-left">{project.title}</h3>
-                  <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium text-left">{project.desc}</p>
+
+                  <h3 className={`font-black text-slate-900 mb-5 leading-tight group-hover:text-[#FF8C42] transition-colors text-left ${project.isFlagship ? 'text-3xl' : 'text-2xl'}`}>
+                    {project.title}
+                  </h3>
+                  
+                  <p className="text-slate-500 text-sm mb-6 leading-relaxed font-medium text-left">
+                    {project.desc}
+                  </p>
+
+                  <div className="mb-6 border-b border-slate-50 pb-5">
+                    <div className="text-[9px] font-black text-slate-400 uppercase tracking-widest mb-3 flex items-center gap-1.5">
+                      <Activity size={12} className="text-slate-400" /> PM Deliverables
+                    </div>
+                    <div className="flex gap-2 flex-wrap">
+                      {project.pmDeliverables.map(d => (
+                        <span key={d} className="text-[10px] font-bold text-slate-600 bg-slate-100/80 border border-slate-200 px-2.5 py-1.5 rounded-lg">
+                          {d}
+                        </span>
+                      ))}
+                    </div>
+                  </div>
                   
                   <div className="space-y-3 mb-8">
                     {project.results.map((r, i) => (
-                      <motion.div key={i} initial={{ opacity: 0, y: 5 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }} className="flex gap-3 text-slate-700 items-start group-hover:translate-x-1 transition-transform">
-                        <CheckCircle2 size={16} className="text-[#FF8C42] shrink-0 mt-0.5" />
+                      <motion.div key={i} initial={{ opacity: 0, x: -5 }} whileInView={{ opacity: 1, x: 0 }} transition={{ delay: 0.2 + i * 0.1 }} className="flex gap-3 text-slate-700 items-start">
+                        <CheckCircle2 size={16} className={`${project.isFlagship ? 'text-[#FF8C42]' : 'text-slate-400'} shrink-0 mt-0.5`} />
                         <span className="text-[13px] font-bold leading-relaxed">{r}</span>
                       </motion.div>
                     ))}
                   </div>
                   
-                  <div className="mt-auto pt-8 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
+                  <div className="mt-auto pt-8 border-t border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                     <div className="flex gap-3 flex-wrap">
                       {project.buttons.map((btn, bIdx) => (
                         <motion.a 
@@ -556,18 +658,13 @@ const App = () => {
                           href={btn.url}
                           target="_blank"
                           rel="noopener noreferrer"
-                          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(255, 140, 66, 0.3)" }}
+                          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(255, 140, 66, 0.2)" }}
                           whileTap={{ scale: 0.95 }}
-                          className="flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full font-black text-[10px] tracking-widest hover:bg-[#FF8C42] transition-all"
+                          className={`flex items-center justify-center gap-2 px-6 py-3 rounded-full font-black text-[10px] tracking-widest transition-all
+                            ${project.isFlagship && bIdx === 0 ? 'bg-[#FF8C42] text-white hover:bg-orange-500' : 'bg-slate-900 text-white hover:bg-slate-800'}`}
                         >
                           {btn.icon} {btn.label}
                         </motion.a>
-                      ))}
-                    </div>
-                    
-                    <div className="flex gap-2 flex-wrap">
-                      {project.skills.map((s, i) => (
-                        <span key={s} className="text-[9px] font-black px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-full text-slate-400 uppercase tracking-widest whitespace-nowrap">{s}</span>
                       ))}
                     </div>
                   </div>
@@ -648,7 +745,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V26.1 PROFESSIONAL
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V27.1 EASTER EGG
           </div>
         </div>
       </footer>
