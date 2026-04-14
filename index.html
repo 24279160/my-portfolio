@@ -1,0 +1,488 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Jen-Hao Cheng | Product Manager Portfolio</title>
+    <link
+        href="https://fonts.googleapis.com/css2?family=Urbanist:wght@400;700&family=Noto+Sans+TC:wght@300;500;700&display=swap"
+        rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        :root {
+            --primary: #2dd4bf;
+            /* 科技青色 */
+            --primary-glow: rgba(45, 212, 191, 0.3);
+            --bg-dark: #020617;
+            --card-bg: #0f172a;
+            --text-main: #f8fafc;
+            --text-dim: #94a3b8;
+            --accent: #f43f5e;
+        }
+
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            scroll-behavior: smooth;
+        }
+
+        body {
+            background-color: var(--bg-dark);
+            color: var(--text-main);
+            font-family: 'Urbanist', 'Noto Sans TC', sans-serif;
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        /* --- Scrollbar --- */
+        ::-webkit-scrollbar {
+            width: 8px;
+        }
+
+        ::-webkit-scrollbar-track {
+            background: var(--bg-dark);
+        }
+
+        ::-webkit-scrollbar-thumb {
+            background: #1e293b;
+            border-radius: 10px;
+        }
+
+        ::-webkit-scrollbar-thumb:hover {
+            background: var(--primary);
+        }
+
+        /* --- Navigation --- */
+        nav {
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1000;
+            background: rgba(2, 6, 23, 0.8);
+            backdrop-filter: blur(12px);
+            border-bottom: 1px solid rgba(30, 41, 59, 0.5);
+        }
+
+        .nav-container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 1.2rem 2rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .logo {
+            font-weight: 700;
+            font-size: 1.5rem;
+            color: var(--primary);
+            letter-spacing: 1px;
+            text-decoration: none;
+        }
+
+        .nav-links a {
+            color: var(--text-main);
+            text-decoration: none;
+            margin-left: 2.5rem;
+            font-size: 0.95rem;
+            transition: all 0.3s;
+            font-weight: 500;
+        }
+
+        .nav-links a:hover {
+            color: var(--primary);
+            text-shadow: 0 0 10px var(--primary-glow);
+        }
+
+        /* --- Hero Section --- */
+        section {
+            padding: 120px 2rem;
+            max-width: 1200px;
+            margin: 0 auto;
+        }
+
+        #hero {
+            height: 100vh;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            align-items: center;
+            text-align: center;
+        }
+
+        .hero-tag {
+            background: rgba(45, 212, 191, 0.1);
+            color: var(--primary);
+            padding: 0.5rem 1.5rem;
+            border-radius: 100px;
+            font-weight: 700;
+            letter-spacing: 3px;
+            font-size: 0.8rem;
+            margin-bottom: 2rem;
+            border: 1px solid var(--primary);
+            animation: fadeInDown 1s ease-out;
+        }
+
+        h1 {
+            font-size: 5rem;
+            margin-bottom: 1rem;
+            line-height: 1.1;
+            animation: fadeInUp 1s ease-out;
+        }
+
+        .highlight {
+            color: var(--primary);
+        }
+
+        .hero-sub {
+            font-size: 1.8rem;
+            color: var(--text-dim);
+            margin-bottom: 3rem;
+            max-width: 800px;
+            animation: fadeInUp 1.2s ease-out;
+        }
+
+        .btn-primary {
+            background: var(--primary);
+            color: var(--bg-dark);
+            text-decoration: none;
+            padding: 1rem 2.5rem;
+            border-radius: 50px;
+            font-weight: 700;
+            transition: all 0.3s;
+            box-shadow: 0 10px 20px var(--primary-glow);
+        }
+
+        .btn-primary:hover {
+            transform: scale(1.05);
+            box-shadow: 0 15px 30px var(--primary-glow);
+        }
+
+        /* --- Core Values --- */
+        .section-header {
+            margin-bottom: 4rem;
+            text-align: left;
+        }
+
+        .section-header h2 {
+            font-size: 3rem;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-header p {
+            color: var(--text-dim);
+            font-size: 1.2rem;
+        }
+
+        .grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(320px, 1fr));
+            gap: 2.5rem;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border: 1px solid #1e293b;
+            padding: 3rem;
+            border-radius: 2rem;
+            transition: all 0.4s ease;
+        }
+
+        .card:hover {
+            transform: translateY(-10px);
+            border-color: var(--primary);
+        }
+
+        .card i {
+            font-size: 3rem;
+            color: var(--primary);
+            margin-bottom: 2rem;
+            display: block;
+        }
+
+        .card h3 {
+            font-size: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        /* --- Experience --- */
+        .experience-item {
+            margin-bottom: 4rem;
+        }
+
+        .stat-box {
+            display: grid;
+            grid-template-columns: 1fr 2fr;
+            gap: 3rem;
+            background: linear-gradient(135deg, #0f172a 0%, #020617 100%);
+            padding: 4rem;
+            border-radius: 2.5rem;
+            border: 1px solid #1e293b;
+            align-items: center;
+        }
+
+        .stat-number {
+            font-size: 5rem;
+            font-weight: 700;
+            color: var(--primary);
+            line-height: 1;
+        }
+
+        .stat-label {
+            color: var(--text-dim);
+            font-size: 1rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            margin-top: 10px;
+        }
+
+        .stat-content h3 {
+            font-size: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        /* --- Skills --- */
+        .tags {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 1rem;
+            margin-top: 1.5rem;
+        }
+
+        .tag {
+            background: rgba(45, 212, 191, 0.1);
+            padding: 0.5rem 1.2rem;
+            border-radius: 50px;
+            font-size: 0.9rem;
+            color: var(--primary);
+            border: 1px solid rgba(45, 212, 191, 0.2);
+        }
+
+        /* --- Footer --- */
+        footer {
+            text-align: center;
+            padding: 6rem 2rem;
+            border-top: 1px solid #1e293b;
+        }
+
+        .contact-links {
+            margin: 2rem 0;
+            display: flex;
+            justify-content: center;
+            gap: 2rem;
+        }
+
+        .contact-links a {
+            font-size: 2rem;
+            color: var(--text-dim);
+            transition: 0.3s;
+        }
+
+        .contact-links a:hover {
+            color: var(--primary);
+            transform: scale(1.2);
+        }
+
+        @keyframes fadeInUp {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-30px);
+            }
+
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        @media (max-width: 768px) {
+            h1 {
+                font-size: 3rem;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .stat-box {
+                grid-template-columns: 1fr;
+                text-align: center;
+                padding: 2rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+
+    <nav>
+        <div class="nav-container">
+            <a href="#" class="logo">JEN-HAO CHENG</a>
+            <div class="nav-links">
+                <a href="#hero">首頁</a>
+                <a href="#about">核心優勢</a>
+                <a href="#experience">專業戰績</a>
+                <a href="#skills">技能矩陣</a>
+            </div>
+        </div>
+    </nav>
+
+    <section id="hero">
+        <div class="hero-tag">PRODUCT MANAGER / PROJECT MANAGER</div>
+        <h1>我是 <span class="highlight">鄭人豪 (Chouchou)</span></h1>
+        <p class="hero-sub">橫跨 UI/UX 設計背景，專注於軟體產品商業化與 4,000 萬級大型專案落地的產品導向型 PM。</p>
+        <a href="#about" class="btn-primary">View My Work</a>
+    </section>
+
+    <section id="about">
+        <div class="section-header">
+            <h2>核心價值 <span class="highlight">Core Value</span></h2>
+            <p>融合設計美學與商業邏輯，打造極致的產品體驗</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <i class="fa-solid fa-comments"></i>
+                <h3>跨部門溝通橋樑</h3>
+                <p>具備 UI/UX 設計專業與開發文件撰寫經驗，能精準轉譯業務需求為技術規格，降低溝通摩擦。</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-chart-line"></i>
+                <h3>商業化營運思維</h3>
+                <p>目前於甲尚科技負責全球內容商店營運，擅長運用 SEO 佈局與 Package 定價策略驅動實際成長。</p>
+            </div>
+            <div class="card">
+                <i class="fa-solid fa-gears"></i>
+                <h3>大型專案落地能力</h3>
+                <p>曾主導 4,000 萬級標案進度控管，具備嚴謹的專案時程管理與多方利害關係人協調經驗。</p>
+            </div>
+        </div>
+    </section>
+
+    <section id="experience">
+        <div class="section-header">
+            <h2>專業戰績 <span class="highlight">Work Case</span></h2>
+            <p>具體數據與跨領域實踐</p>
+        </div>
+
+        <div class="experience-item">
+            <div class="stat-box">
+                <div class="stat-number-wrapper">
+                    <div class="stat-number">$40M</div>
+                    <div class="stat-label">Project Budget (TWD)</div>
+                </div>
+                <div class="stat-content">
+                    <h3>環球動力：警察局 XR 模擬訓練系統</h3>
+                    <p>擔任 PM 兼主要設計師。負責系統架構規劃與體驗設計，並與「亞洲動作電影特技團隊」合作錄製高標準 Stunts（特技動作），為警政署打造出震撼且具備高度視覺衝擊力（Stunning Visual
+                        Experiences）的模擬訓練場景。</p>
+                    <div class="tags">
+                        <span class="tag">標案文件管理</span>
+                        <span class="tag">系統架構規劃</span>
+                        <span class="tag">Stunt Capture</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <div class="experience-item">
+            <div class="stat-box">
+                <div class="stat-number-wrapper">
+                    <div class="stat-number">+30%</div>
+                    <div class="stat-label">Organic Traffic Growth</div>
+                </div>
+                <div class="stat-content">
+                    <h3>甲尚科技：ActorCore 商業化營運</h3>
+                    <p>管理全球數位內容商店。負責內容產品如 SWAT Stunts Package、BMX Package 的規劃與行銷，透過 SEO 優化與 Bundling 策略，有效提升平台流量與轉換率。
+                    </p>
+                    <div class="tags">
+                        <span class="tag">商業化策略</span>
+                        <span class="tag">SEO / GA4</span>
+                        <span class="tag">Package Planning</span>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section id="skills">
+        <div class="section-header">
+            <h2>技能矩陣 <span class="highlight">Skills</span></h2>
+            <p>專業工具與核心競爭力</p>
+        </div>
+        <div class="grid">
+            <div class="card">
+                <h3>產品管理</h3>
+                <div class="tags">
+                    <span class="tag">Jira / Trello</span>
+                    <span class="tag">Agile / Scrum</span>
+                    <span class="tag">PRD & User Story</span>
+                    <span class="tag">Market Research</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>設計思維</h3>
+                <div class="tags">
+                    <span class="tag">Figma</span>
+                    <span class="tag">Design System</span>
+                    <span class="tag">Prototyping</span>
+                    <span class="tag">UX Analysis</span>
+                </div>
+            </div>
+            <div class="card">
+                <h3>數位能力</h3>
+                <div class="tags">
+                    <span class="tag">SEO / SEM</span>
+                    <span class="tag">Google Analytics 4</span>
+                    <span class="tag">E-commerce Ops</span>
+                    <span class="tag">TOEIC (準備中)</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <footer>
+        <h2 style="font-size: 2.5rem; margin-bottom: 1rem;">Let's Connect</h2>
+        <p>我正在尋找能發揮跨領域價值的 PM 職位，期待與您聯繫！</p>
+        <div class="contact-links">
+            <a href="mailto:your-email@example.com"><i class="fa-solid fa-envelope"></i></a>
+            <a href="#"><i class="fa-brands fa-linkedin"></i></a>
+            <a href="#"><i class="fa-brands fa-github"></i></a>
+        </div>
+        <p style="margin-top: 3rem; font-size: 0.9rem; color: #475569;">&copy; 2026 Jen-Hao Cheng. All Rights Reserved.
+        </p>
+    </footer>
+
+    <script>
+        // Scroll reveal animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.style.opacity = '1';
+                    entry.target.style.transform = 'translateY(0)';
+                }
+            });
+        }, { threshold: 0.1 });
+
+        document.querySelectorAll('.card, .stat-box').forEach(el => {
+            el.style.opacity = '0';
+            el.style.transform = 'translateY(30px)';
+            el.style.transition = 'all 0.6s ease-out';
+            observer.observe(el);
+        });
+    </script>
+</body>
+
+</html>
