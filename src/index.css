@@ -1,0 +1,10 @@
+@import "tailwindcss";
+
+body {
+  cursor: none;
+  background-color: #ffffff;
+}
+
+:root {
+  font-family: 'Urbanist', 'Noto Sans TC', sans-serif;
+}
