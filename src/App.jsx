@@ -20,11 +20,21 @@ import {
   X,
   User,
   ExternalLink,
-  Figma,
   Navigation,
   Zap,
   Briefcase
 } from 'lucide-react';
+
+// 自定義 Figma SVG 圖標 (避免套件版本衝突)
+const FigmaIcon = ({ size = 14 }) => (
+  <svg width={size} height={size} viewBox="0 0 38 57" fill="none" xmlns="http://www.w3.org/2000/svg">
+    <path d="M19 28.5C19 23.2533 23.2533 19 28.5 19C33.7467 19 38 23.2533 38 28.5C38 33.7467 33.7467 38 28.5 38H19V28.5Z" fill="#1ABCFE"/>
+    <path d="M0 47.5C0 42.2533 4.2467 38 9.5 38H19V47.5C19 52.7467 14.7533 57 9.5 57C4.2467 57 0 52.7467 0 47.5Z" fill="#0ACF83"/>
+    <path d="M19 0V19H28.5C33.7467 19 38 14.7467 38 9.5C38 4.2533 33.7467 0 28.5 0H19Z" fill="#FF7262"/>
+    <path d="M0 9.5C0 14.7467 4.2467 19 9.5 19H19V0H9.5C4.2467 0 0 4.2533 0 9.5Z" fill="#F24E1E"/>
+    <path d="M0 28.5C0 33.7467 4.2467 38 9.5 38H19V19H9.5C4.2467 19 0 23.2533 0 28.5Z" fill="#A259FF"/>
+  </svg>
+);
 
 // --- 核心組件：優雅對焦導航滑鼠 ---
 const CustomCursor = () => {
@@ -194,7 +204,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件：妳的真人照 ---
+// --- 頭像組件 ---
 const ProfilePhoto = ({ mouse }) => {
   const [center, setCenter] = useState({ x: 0, y: 0 });
   const [isHovered, setIsHovered] = useState(false);
@@ -312,7 +322,7 @@ const App = () => {
       icon: Layout, 
       skills: ['UI/UX Design', 'Design System', 'Prototyping'],
       ctas: [
-        { label: 'FIGMA MOCKUP', url: 'https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?node-id=138-1498', icon: <Figma size={14} /> },
+        { label: 'FIGMA MOCKUP', url: 'https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?node-id=138-1498', icon: <FigmaIcon size={14} /> },
         { label: 'PROTOTYPE', url: 'https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS--UI?page-id=138%3A1498&node-id=710-73139', icon: <Navigation size={14} /> }
       ]
     }
@@ -498,9 +508,7 @@ const App = () => {
               { title: '服務設計思維', icon: <Cpu size={32} />, desc: '運用 User-Centered 方法論，將用戶痛點轉化為 Stunning 的解決方案。' }
             ].map((item, i) => (
               <div key={i} className="p-10 border border-slate-100 rounded-[3rem] bg-slate-50/50 hover:bg-white hover:shadow-2xl transition-all duration-500 group relative overflow-hidden transform hover:-translate-y-2 h-full min-h-[220px]">
-                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 group-hover:-translate-y-1 transition-all duration-500 relative z-10 w-fit">
-                  {item.icon}
-                </div>
+                <div className="mb-6 text-slate-300 group-hover:text-[#FF8C42] transition-all duration-500">{item.icon}</div>
                 <h4 className="text-xl font-black mb-4 text-slate-800">{item.title}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed font-medium">{item.desc}</p>
                 <div className="absolute bottom-0 left-0 w-0 h-2 bg-[#FF8C42] group-hover:w-full transition-all duration-500"></div>
@@ -512,7 +520,7 @@ const App = () => {
 
       <footer id="about" className="py-32 px-6 bg-white text-center border-t border-slate-100">
         <div className="max-w-4xl mx-auto">
-          <div className="w-16 h-16 bg-slate-900 rounded-2xl mx-auto mb-10 flex items-center justify-center text-white font-black text-xl shadow-2xl transition-transform hover:scale-110 pointer-events-auto cursor-pointer">
+          <div className="w-16 h-16 bg-slate-950 rounded-2xl mx-auto mb-10 flex items-center justify-center text-white font-black text-xl shadow-xl rotate-3 hover:scale-110 transition-transform duration-300">
             RH
           </div>
           <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-12 leading-tight tracking-tighter pointer-events-none opacity-100">
@@ -537,7 +545,7 @@ const App = () => {
               <span className="text-xl text-slate-800 font-black flex items-center gap-2"><Globe size={18} className="text-[#FF8C42]" />Xizhi District</span>
             </div>
           </div>
-          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V15.9 FINAL</div>
+          <div className="mt-24 text-[10px] font-black text-slate-300 tracking-[0.8em] uppercase">© 2026 JEN-HAO ZHENG · PM PORTFOLIO V16.4 FINAL</div>
         </div>
       </footer>
     </div>
