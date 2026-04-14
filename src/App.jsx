@@ -21,10 +21,14 @@ import {
   Globe2,
   ArrowRight,
   Download,
-  FileText
+  FileText,
+  ExternalLink,
+  Play,
+  Figma,
+  Navigation
 } from 'lucide-react';
 
-// --- 核心組件：優雅導航滑鼠 ---
+// --- 核心組件：優雅導覽滑鼠 ---
 const CustomCursor = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -83,7 +87,7 @@ const CustomCursor = () => {
   );
 };
 
-// --- 背景組件：神經脈動背景 (極致絲滑版) ---
+// --- 背景組件：神經脈動背景 ---
 const NeuralMeshBackground = ({ mouse }) => {
   const canvasRef = useRef(null);
   const anchors = useMemo(() => [
@@ -150,27 +154,41 @@ const NeuralMeshBackground = ({ mouse }) => {
 // --- 互動卡片容器 ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
+  const [glow, setGlow] = useState({ x: 50, y: 50 });
+
   const onMouseMove = (e) => {
     const card = e.currentTarget;
     const box = card.getBoundingClientRect();
     const x = e.clientX - box.left;
     const y = e.clientY - box.top;
+    const glowX = (x / box.width) * 100;
+    const glowY = (y / box.height) * 100;
+    setGlow({ x: glowX, y: glowY });
     const centerX = box.width / 2;
     const centerY = box.height / 2;
-    const rotateX = (y - centerY) / 55;
-    const rotateY = (centerX - x) / 55;
+    const rotateX = (y - centerY) / 45;
+    const rotateY = (centerX - x) / 45;
     setRotate({ x: rotateX, y: rotateY });
   };
-  const onMouseLeave = () => setRotate({ x: 0, y: 0 });
+
+  const onMouseLeave = () => {
+    setRotate({ x: 0, y: 0 });
+    setGlow({ x: 50, y: 50 });
+  };
+
   return (
     <motion.div
       onMouseMove={onMouseMove}
       onMouseLeave={onMouseLeave}
       animate={{ rotateX: rotate.x, rotateY: rotate.y }}
       transition={{ type: 'spring', stiffness: 180, damping: 25 }}
-      style={{ perspective: '1200px' }}
-      className={className}
+      style={{ perspective: '1200px', transformStyle: 'preserve-3d' }}
+      className={`relative group ${className}`}
     >
+      <div 
+        className="absolute inset-0 z-10 pointer-events-none opacity-0 group-hover:opacity-100 transition-opacity duration-500 rounded-[2.5rem]"
+        style={{ background: `radial-gradient(circle at ${glow.x}% ${glow.y}%, rgba(255, 140, 66, 0.12) 0%, transparent 60%)` }}
+      />
       {children}
     </motion.div>
   );
@@ -205,7 +223,7 @@ const MagneticHeadline = ({ mouse }) => {
         onMouseEnter={() => setIsHovered(true)}
         onMouseLeave={() => setIsHovered(false)}
         animate={{ x: offset.x, y: offset.y }}
-        transition={{ type: 'spring', stiffness: 200, damping: 25 }}
+        transition={{ type: 'spring', stiffness: 220, damping: 25 }}
         className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300"
         style={{ 
           color: isHovered ? '#FF8C42' : '#0f172a',
@@ -221,7 +239,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 頭像組件 (優化絲滑互動) ---
+// --- 頭像組件 ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
@@ -241,26 +259,13 @@ const ProfilePhoto = ({ mouse }) => {
         <motion.div
           onMouseEnter={() => setIsHovered(true)}
           onMouseLeave={() => setIsHovered(false)}
-          whileHover={{ 
-            scale: 1.04,
-            rotateY: 6,
-            rotateX: -4
-          }}
-          transition={{ 
-            type: 'spring', 
-            stiffness: 100, 
-            damping: 20 
-          }}
+          whileHover={{ scale: 1.04, rotateY: 6, rotateX: -4 }}
+          transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           className="relative cursor-none z-10"
         >
           <div className="relative w-64 h-64 md:w-[19rem] md:h-[19rem] rounded-[3.5rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[6px] border-white bg-slate-100">
-            <img 
-              src={avatarUrl} 
-              alt="Jen-Hao Cheng Profile" 
-              className={`w-full h-full object-cover transition-transform duration-[1200ms] cubic-bezier(0.23, 1, 0.32, 1) ${isHovered ? 'scale-108' : ''}`}
-            />
+            <img src={avatarUrl} alt="Profile" className={`w-full h-full object-cover transition-transform duration-[1200ms] ${isHovered ? 'scale-108' : ''}`} />
           </div>
-
           <AnimatePresence>
             {isHovered && floatTags.map((tag, idx) => (
               <motion.div
@@ -269,7 +274,7 @@ const ProfilePhoto = ({ mouse }) => {
                 animate={{ opacity: 1, scale: 1, y: 0 }}
                 exit={{ opacity: 0, scale: 0.8, y: 10 }}
                 transition={{ duration: 0.5, delay: tag.delay, ease: "circOut" }}
-                className="absolute whitespace-nowrap bg-slate-900/80 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-full text-[10px] font-bold tracking-widest z-30 shadow-xl"
+                className="absolute whitespace-nowrap bg-slate-900/80 backdrop-blur-md border border-white/10 text-white px-4 py-2 rounded-full text-[10px] font-black tracking-widest z-30 shadow-xl"
                 style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right, borderLeft: `3px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
               >
                 {tag.text}
@@ -317,6 +322,7 @@ const App = () => {
     { icon: <ShieldCheck className="text-teal-500" size={16} />, text: "參與政府專案執行，確保產品符合實際應用場景與驗收標準。" }
   ];
 
+  // 專案數據 (更新連結並移除圖片上的提示文字)
   const projects = [
     {
       id: 'actorcore',
@@ -325,7 +331,9 @@ const App = () => {
       results: ['搜尋成功率提升 20%', '優化商城推薦內容結構'],
       img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7", 
       icon: Search,
-      cta: "查看 IA 邏輯詳情",
+      buttons: [
+        { label: "點擊查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
+      ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
     },
     {
@@ -335,7 +343,9 @@ const App = () => {
       results: ['CTR 提升約 10–15%', '客製化 Page 驅動流量轉換'],
       img: "https://lh3.googleusercontent.com/d/1onA8n6Ydj4qu3SYtZi57ciEXgktuxICE", 
       icon: Package,
-      cta: "查看 Package 策略",
+      buttons: [
+        { label: "點擊查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
+      ],
       skills: ['Package Strategy', 'Commercialization', 'CTR Growth']
     },
     {
@@ -345,7 +355,9 @@ const App = () => {
       results: ['完成 4,000 萬標案驗收', '成功導入全台教學體系'],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
-      cta: "查看系統流程規劃",
+      buttons: [
+        { label: "查看展示影片", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> }
+      ],
       skills: ['Prioritization', 'Asian Stunt Team', 'Stunts Capture']
     },
     {
@@ -355,7 +367,11 @@ const App = () => {
       results: ['目標受眾滿意度突破 80%', '建立可擴充的 UI 元件化規範'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
-      cta: "查看設計系統規範",
+      buttons: [
+        { label: "完整專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
+        { label: "Figma Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <Figma size={14} /> },
+        { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?page-id=138:1498&node-id=710-73139&viewport=-9828,1631,0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710:73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
+      ],
       skills: ['UI/UX Design', 'Design System', 'Prototyping']
     }
   ];
@@ -406,16 +422,11 @@ const App = () => {
           <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
           <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-dark">HAO</span></span>
         </div>
-        <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-400 pointer-events-auto">
+        <div className="hidden md:flex space-x-10 font-bold text-[10px] tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
           <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
           <button onClick={() => scrollTo('projects')} className="hover:text-[#FF8C42] transition-colors">PROJECTS</button>
           <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">SKILLS</button>
-          <button 
-            onClick={() => scrollTo('about')} 
-            className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-[10px] font-black tracking-widest"
-          >
-             CONTACT ME
-          </button>
+          <button onClick={() => scrollTo('about')} className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-[10px] font-black tracking-widest">CONTACT ME</button>
         </div>
       </nav>
 
@@ -433,7 +444,7 @@ const App = () => {
             </p>
             <div className="grid grid-cols-1 md:grid-cols-3 gap-5 w-full pointer-events-auto mb-8">
               {impactMetrics.map((impact, i) => (
-                <div key={i} className="flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 rounded-[2.5rem] hover:border-[#FF8C42]/30 transition-all group">
+                <div key={i} className="flex flex-col h-full bg-slate-50/40 backdrop-blur-sm border border-slate-100 p-6 rounded-[2.5rem] hover:border-[#FF8C42]/30 transition-all group shadow-sm">
                   <div className="text-slate-300 mb-4 group-hover:text-[#FF8C42] transition-colors">
                     <impact.icon size={22} />
                   </div>
@@ -455,17 +466,17 @@ const App = () => {
         <div className="max-w-[1100px] mx-auto">
           <div className="flex items-center gap-6 mb-16">
             <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Career Path</h2>
-            <div className="h-[1px] flex-grow bg-slate-200"></div>
+            <div className="h-[2px] flex-grow bg-slate-200"></div>
           </div>
           <div className="space-y-12 relative before:absolute before:inset-0 before:ml-[11px] before:w-[1.5px] before:bg-gradient-to-b before:from-[#FF8C42] before:via-[#2dd4bf] before:to-transparent">
             
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#FF8C42] group-hover:scale-125 transition-all" />
               <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#FF8C42]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 gap-3 text-left">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">Global E-commerce & SaaS</span></div>
-                    <h3 className="text-2xl font-black text-slate-900 text-left">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
+                    <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100">2024.10 - Present</span>
                 </div>
@@ -484,14 +495,14 @@ const App = () => {
             <motion.div whileHover={{ x: 8 }} className="relative pl-16 group pointer-events-auto">
               <div className="absolute left-0 top-3 w-4 h-4 rounded-full bg-white border-4 border-[#2dd4bf] group-hover:scale-125 transition-all" />
               <div className="bg-white p-8 rounded-[3rem] shadow-sm border border-slate-100 hover:border-[#2dd4bf]/20 transition-all">
-                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6">
+                <div className="flex flex-col md:flex-row md:items-end justify-between mb-6 text-left">
                   <div>
                     <div className="flex items-center gap-2 mb-2 text-slate-400 font-bold"><Building2 size={14} /><span className="text-[10px] tracking-widest uppercase">B2B / B2G Integration</span></div>
-                    <h3 className="text-2xl font-black text-slate-900 text-left">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
+                    <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
                   </div>
                   <span className="text-[10px] font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100">2023.05 - 2024.10</span>
                 </div>
-                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-200 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span></h4>
+                <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left">產品設計師 <span className="text-[10px] text-slate-400 font-medium border-l border-slate-300 pl-3 ml-2 tracking-widest uppercase">Product Designer & Project Exec.</span></h4>
                 <div className="grid grid-cols-1 gap-4 text-left">
                   {globalPowerBullets.map((bullet, idx) => (
                     <div key={idx} className="flex gap-4 items-start">
@@ -506,61 +517,64 @@ const App = () => {
         </div>
       </section>
 
-      {/* Projects Showcase */}
+      {/* Projects Showcase - 連結補全且移除圖片提示文字 */}
       <section id="projects" className="py-24 px-6 md:px-12 relative z-10 text-left">
         <div className="max-w-[1200px] mx-auto">
-          <div className="flex items-center gap-6 mb-16">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Project Showcase</h2>
+          <div className="flex items-center gap-6 mb-16 text-left">
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Project Showcase</h2>
             <div className="h-[1px] flex-grow bg-slate-100"></div>
           </div>
           
           <div className="space-y-16 pointer-events-auto">
             {projects.map((project, idx) => (
-              <motion.div 
-                key={idx} 
-                initial={{ opacity: 0, scale: 0.98 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true, margin: "-100px" }}
-                className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-xl transition-all duration-600 group flex flex-col md:flex-row gap-10 items-start relative overflow-hidden"
-              >
-                <TiltCard className="w-full md:w-[48%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative group/img bg-slate-50 shrink-0">
-                  <img 
-                    src={project.img} 
-                    alt={project.title} 
-                    className="w-full h-full object-cover group-hover/img:scale-106 transition-transform duration-[1.8s] ease-out" 
-                  />
-                </TiltCard>
+              <TiltCard key={idx} className="bg-white p-8 md:p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default">
+                <div className="w-full md:w-[48%] aspect-[16/10] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0">
+                  <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
+                  {/* 移除原本的 View Detailed Case Study 懸浮條 */}
+                </div>
                 
-                <div className="flex-grow flex flex-col h-full py-2">
-                  <div className="flex items-center gap-3 mb-4">
-                    <div className="w-8 h-[1px] bg-slate-200"></div>
-                    <span className="text-[10px] font-black text-accent uppercase tracking-[0.3em]">{project.id}</span>
+                <div className="flex-grow flex flex-col h-full py-2 relative z-20">
+                  <div className="flex items-center gap-3 mb-4 text-left">
+                    <div className="w-8 h-[1px] bg-[#FF8C42] group-hover:w-12 transition-all duration-500"></div>
+                    <span className="text-[10px] font-black text-[#FF8C42] uppercase tracking-[0.3em]">{project.id}</span>
                   </div>
-                  <h3 className="text-2xl font-black text-slate-900 mb-5 leading-tight group-hover:text-orange-500 transition-colors text-left">{project.title}</h3>
+                  <h3 className="text-2xl font-black text-slate-900 mb-5 leading-tight group-hover:text-[#FF8C42] transition-colors text-left">{project.title}</h3>
                   <p className="text-slate-500 text-sm mb-8 leading-relaxed font-medium text-left">{project.desc}</p>
                   
                   <div className="space-y-3 mb-8">
                     {project.results.map((r, i) => (
-                      <div key={i} className="flex gap-3 text-slate-700 items-start">
+                      <motion.div key={i} initial={{ opacity: 0, y: 5 }} whileInView={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 + i * 0.1 }} className="flex gap-3 text-slate-700 items-start group-hover:translate-x-1 transition-transform">
                         <CheckCircle2 size={16} className="text-[#FF8C42] shrink-0 mt-0.5" />
                         <span className="text-[13px] font-bold leading-relaxed">{r}</span>
-                      </div>
+                      </motion.div>
                     ))}
                   </div>
                   
                   <div className="mt-auto pt-8 border-t border-slate-100 flex flex-col lg:flex-row lg:items-center justify-between gap-6">
-                    <button className="flex items-center justify-center gap-2 bg-slate-900 text-white px-7 py-3.5 rounded-full font-black text-[10px] tracking-widest hover:bg-orange-500 transition-all group/btn shrink-0">
-                      {project.cta} <ArrowRight size={14} className="group-hover/btn:translate-x-1 transition-transform" />
-                    </button>
+                    <div className="flex gap-3 flex-wrap">
+                      {project.buttons.map((btn, bIdx) => (
+                        <motion.a 
+                          key={bIdx}
+                          href={btn.url}
+                          target="_blank"
+                          rel="noopener noreferrer"
+                          whileHover={{ scale: 1.05, boxShadow: "0 10px 25px rgba(255, 140, 66, 0.3)" }}
+                          whileTap={{ scale: 0.95 }}
+                          className="flex items-center justify-center gap-2 bg-slate-900 text-white px-6 py-3 rounded-full font-black text-[10px] tracking-widest hover:bg-[#FF8C42] transition-all"
+                        >
+                          {btn.icon} {btn.label}
+                        </motion.a>
+                      ))}
+                    </div>
                     
                     <div className="flex gap-2 flex-wrap">
-                      {project.skills.map(s => (
+                      {project.skills.map((s, i) => (
                         <span key={s} className="text-[9px] font-black px-3 py-1.5 bg-slate-50 border border-slate-100 rounded-full text-slate-400 uppercase tracking-widest whitespace-nowrap">{s}</span>
                       ))}
                     </div>
                   </div>
                 </div>
-              </motion.div>
+              </TiltCard>
             ))}
           </div>
         </div>
@@ -569,8 +583,8 @@ const App = () => {
       {/* Professional Skills */}
       <section id="expertise" className="py-24 px-6 md:px-24 bg-white relative z-10 border-t border-slate-50 text-left">
         <div className="max-w-6xl mx-auto">
-          <div className="flex items-center gap-6 mb-20">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900 text-left">Professional Skills</h2>
+          <div className="flex items-center gap-6 mb-20 text-left">
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Professional Skills</h2>
             <div className="h-[1px] flex-grow bg-slate-200"></div>
           </div>
           
@@ -581,10 +595,8 @@ const App = () => {
               { title: '資訊架構優化', icon: <Layers size={28} />, desc: '擅長重構系統 Taxonomy 與 IA 架構，優化內容發現效率與搜尋體驗。' },
               { title: '數據驅動決策', icon: <BarChart3 size={28} />, desc: '分析使用者行為與銷售數據，持續優化產品轉化流程與用戶留存。' }
             ].map((item, i) => (
-              <div key={i} className="p-10 border border-slate-50 rounded-[3rem] bg-slate-50/30 hover:bg-white hover:shadow-2xl transition-all group relative overflow-hidden transform hover:-translate-y-2 shadow-sm">
-                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 transition-all w-fit">
-                  {item.icon}
-                </div>
+              <div key={i} className="p-10 border border-slate-50 rounded-[3rem] bg-slate-50/30 hover:bg-white hover:shadow-2xl transition-all group relative overflow-hidden transform hover:-translate-y-2 shadow-sm text-left">
+                <div className="mb-6 text-slate-300 group-hover:text-accent group-hover:scale-110 transition-all w-fit">{item.icon}</div>
                 <h4 className="text-xl font-black mb-4 text-slate-800 tracking-tight text-left">{item.title}</h4>
                 <p className="text-slate-500 text-xs leading-relaxed font-medium text-left">{item.desc}</p>
                 <div className="absolute bottom-0 left-0 w-0 h-1.5 bg-[#FF8C42] group-hover:w-full transition-all duration-600 ease-out"></div>
@@ -594,74 +606,51 @@ const App = () => {
         </div>
       </section>
 
-      {/* Contact & Resources Footer - 絲滑動態優化 */}
+      {/* Contact & Resources Footer */}
       <footer id="about" className="py-32 px-6 bg-white border-t border-slate-100 relative overflow-hidden text-center">
         <div className="max-w-6xl mx-auto relative z-10">
           <div className="text-center mb-20">
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
-               <span className="text-[10px] font-black text-slate-400 tracking-[0.4em] uppercase">Professional Network</span>
+               <span className="text-[10px] font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">
-              聯絡資訊與資源
-            </h2>
-            <p className="text-slate-400 font-medium">點擊下方卡片展開詳細聯絡資訊，期待與您的團隊共同創造價值。</p>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊與資源</h2>
+            <p className="text-slate-400 font-medium text-center">點擊下方卡片展開詳細聯絡資訊，期待與您的團隊共同創造價值。</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 mb-24 pointer-events-auto">
             {contactOptions.map((opt) => (
               <motion.a
-                layout
-                key={opt.id}
+                layout key={opt.id}
                 href={opt.id === 'mail' ? `mailto:${opt.value}` : opt.id === 'phone' ? `tel:${opt.value}` : opt.value}
                 target={opt.id === 'download' ? "_blank" : "_self"}
                 onMouseEnter={() => setHoveredContact(opt.id)}
                 onMouseLeave={() => setHoveredContact(null)}
-                animate={{ 
-                  flex: hoveredContact === opt.id ? 2.2 : 1,
-                  opacity: hoveredContact && hoveredContact !== opt.id ? 0.45 : 1,
-                  filter: hoveredContact && hoveredContact !== opt.id ? 'blur(3px)' : 'blur(0px)'
-                }}
+                animate={{ flex: hoveredContact === opt.id ? 2.2 : 1, opacity: hoveredContact && hoveredContact !== opt.id ? 0.45 : 1, filter: hoveredContact && hoveredContact !== opt.id ? 'blur(3px)' : 'blur(0px)' }}
                 transition={{ type: 'spring', stiffness: 140, damping: 25 }}
-                className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all overflow-hidden relative group cursor-pointer"
+                className="bg-white p-10 rounded-[3.5rem] border border-slate-100 shadow-sm hover:shadow-2xl transition-all overflow-hidden relative group cursor-pointer text-left"
               >
-                {/* 背景 Icon 裝飾 */}
-                <div className="absolute -top-4 -right-4 w-32 h-32 opacity-5 group-hover:opacity-15 transition-opacity duration-700" style={{ color: opt.color }}>
-                   <opt.icon size={110} strokeWidth={1} />
-                </div>
-
+                <div className="absolute -top-4 -right-4 w-32 h-32 opacity-5 group-hover:opacity-15 transition-opacity" style={{ color: opt.color }}><opt.icon size={110} strokeWidth={1} /></div>
                 <div className="relative z-10 flex flex-col h-full text-left">
-                  <div className="flex items-center gap-4 mb-8">
-                    <div className="p-4 rounded-[1.5rem] bg-slate-50 group-hover:bg-white group-hover:shadow-md transition-all" style={{ color: opt.color }}>
-                       <opt.icon size={26} />
-                    </div>
+                  <div className="flex items-center gap-4 mb-8 text-left">
+                    <div className="p-4 rounded-[1.5rem] bg-slate-50 group-hover:bg-white group-hover:shadow-md transition-all" style={{ color: opt.color }}><opt.icon size={26} /></div>
                     <div>
-                       <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1">{opt.title}</div>
-                       <div className="text-xl font-black text-slate-900">{opt.label}</div>
+                       <div className="text-[10px] font-black text-slate-300 uppercase tracking-widest mb-1 text-left">{opt.title}</div>
+                       <div className="text-xl font-black text-slate-900 text-left">{opt.label}</div>
                     </div>
                   </div>
-                  
-                  <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors">
-                    {opt.desc}
-                  </div>
-
-                  <div className="mt-auto">
+                  <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors text-left">{opt.desc}</div>
+                  <div className="mt-auto text-left">
                     <div className="text-[10px] font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
-                    <div className="text-[15px] font-black text-slate-800">
-                       {opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}
-                    </div>
+                    <div className="text-[15px] font-black text-slate-800 text-left">{opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}</div>
                   </div>
-
-                  <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500">
-                     <ArrowRight size={22} style={{ color: opt.color }} />
-                  </div>
+                  <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500"><ArrowRight size={22} style={{ color: opt.color }} /></div>
                 </div>
               </motion.a>
             ))}
           </div>
-          
-          <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase text-center flex flex-col items-center gap-4">
+          <div className="mt-32 text-[10px] font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V23.0 PROFESSIONAL
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V26.0 PROFESSIONAL
           </div>
         </div>
       </footer>
