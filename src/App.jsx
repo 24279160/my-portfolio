@@ -34,7 +34,7 @@ import {
   CheckCircle
 } from 'lucide-react';
 
-// --- ★ 新增：智慧設備偵測 Hook (用來判斷是否為手機或平板) ---
+// --- ★ 智慧設備偵測 Hook ---
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
   useEffect(() => {
@@ -49,7 +49,7 @@ const useIsMobile = () => {
   return isMobile;
 };
 
-// --- 背景特效 1：環境漸層流光球 (★ 手機端效能優化：降級為靜態中度模糊) ---
+// --- 背景特效 1：環境漸層流光球 ---
 const AmbientBlobs = ({ isMobile }) => {
   const blurClass = isMobile ? "blur-[60px]" : "blur-[120px]";
   
@@ -74,7 +74,7 @@ const AmbientBlobs = ({ isMobile }) => {
   );
 };
 
-// --- 核心組件：優雅導覽滑鼠 (★ 電腦端限定) ---
+// --- 核心組件：優雅導覽滑鼠 ---
 const CustomCursor = () => {
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [isHovering, setIsHovering] = useState(false);
@@ -153,7 +153,7 @@ const AestheticProgressBar = () => {
   );
 };
 
-// --- 背景組件：神經脈動背景 (★ 電腦端限定，保護手機效能) ---
+// --- 背景組件：神經脈動背景 ---
 const NeuralMeshBackground = ({ mouse }) => {
   const canvasRef = useRef(null);
   const anchors = useMemo(() => [
@@ -298,13 +298,13 @@ const MetricCard = ({ impact, className = "" }) => {
   );
 };
 
-// --- 磁吸互動標題組件 (超可愛 Emoji 噴發彩蛋) ---
+// --- ★ 優化：磁吸互動標題組件 (加入 Hover Me 提示 & 15 顆 Emoji 噴發) ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
   const [offset, setOffset] = useState({ x: 0, y: 0 });
   
-  const emojisList = ['✨', '🚀', '💡', '💻', '💙', '👀', '🎉', '🔥', '🌟', '💪'];
+  const emojisList = ['✨', '🚀', '💡', '💻', '💙', '👀', '🎉', '🔥', '🌟', '💪', '🎯', '🪄'];
   const [bursts, setBursts] = useState([]);
 
   useEffect(() => {
@@ -325,31 +325,41 @@ const MagneticHeadline = ({ mouse }) => {
 
   const triggerEmojiBurst = () => {
     setIsHovered(true);
-    const newBursts = Array.from({ length: 5 }).map((_, i) => ({
+    // 噴發數量改為 9 顆，保留趣味性但不干擾閱讀
+    const newBursts = Array.from({ length: 9 }).map((_, i) => ({
       id: Date.now() + i,
       emoji: emojisList[Math.floor(Math.random() * emojisList.length)],
-      angle: (i * (Math.PI * 2)) / 5 + (Math.random() - 0.5), 
-      distance: 60 + Math.random() * 50,
+      angle: (i * (Math.PI * 2)) / 9 + (Math.random() - 0.5) * 0.5, 
+      distance: 80 + Math.random() * 100, // 更遠的噴發距離
     }));
     setBursts(newBursts);
   };
 
   return (
-    <div className="flex flex-col items-start mb-6 pointer-events-auto cursor-default overflow-visible text-left">
+    <div className="flex flex-col items-start mb-6 pointer-events-auto cursor-default overflow-visible text-left relative">
       <motion.h1 
         ref={h1Ref}
         onMouseEnter={triggerEmojiBurst}
         onMouseLeave={() => setIsHovered(false)}
         animate={{ x: offset.x, y: offset.y }}
         transition={{ type: 'spring', stiffness: 220, damping: 25 }}
-        className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300"
+        className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300 flex items-center flex-wrap gap-x-4"
         style={{ 
           color: isHovered ? '#FF8C42' : '#0f172a',
           textShadow: isHovered ? '0 0 30px rgba(255, 140, 66, 0.2)' : 'none'
         }}
       >
-        HI, I AM <span className="italic">REN.</span>
+        <span>HI, I AM <span className="italic">REN.</span></span>
         
+        {/* ★ 新增：提示小標籤 (Hover Me!) */}
+        <motion.div
+          animate={{ opacity: isHovered ? 0 : 1, y: isHovered ? -10 : 0 }}
+          transition={{ duration: 0.3 }}
+          className="inline-flex items-center gap-1.5 text-sm md:text-base text-[#FF8C42] font-black tracking-widest uppercase bg-orange-50 px-4 py-2 rounded-full border-2 border-orange-200 shadow-sm animate-bounce pointer-events-none mt-2 md:mt-0"
+        >
+          <MousePointer2 size={16} /> ✨ Hover Me
+        </motion.div>
+
         <AnimatePresence>
           {isHovered && bursts.map(item => (
             <motion.div
@@ -359,11 +369,11 @@ const MagneticHeadline = ({ mouse }) => {
                 opacity: [0, 1, 0],
                 x: Math.cos(item.angle) * item.distance,
                 y: Math.sin(item.angle) * item.distance,
-                scale: [0.5, 1.5, 1],
-                rotate: (Math.random() - 0.5) * 60
+                scale: [0.5, 1.8, 1],
+                rotate: (Math.random() - 0.5) * 90
               }}
-              transition={{ duration: 0.8, ease: "easeOut" }}
-              className="absolute left-[80%] top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl md:text-5xl pointer-events-none z-50 drop-shadow-md"
+              transition={{ duration: 0.9, ease: "easeOut" }}
+              className="absolute left-1/2 top-1/2 -translate-x-1/2 -translate-y-1/2 text-3xl md:text-5xl pointer-events-none z-50 drop-shadow-md"
             >
               {item.emoji}
             </motion.div>
@@ -374,48 +384,51 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 大頭照專屬的「調皮逃跑」毛玻璃標籤 ---
+// --- ★ 優化：常駐漂浮但碰到會逃跑的毛玻璃標籤 ---
 const ProfileDodgeTag = ({ tag, idx }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
   const handleHover = () => {
+    // 滑鼠碰觸時的逃跑邏輯
     const angle = Math.random() * Math.PI * 2;
-    const distance = 20 + Math.random() * 15; 
+    const distance = 30 + Math.random() * 20; 
     setDodgePos({
       x: Math.cos(angle) * distance,
       y: Math.sin(angle) * distance
     });
 
+    // 一段時間後慢慢飛回來
     setTimeout(() => {
       setDodgePos({ x: 0, y: 0 });
-    }, 2500);
+    }, 2000);
   };
 
   return (
     <motion.div
       className="absolute z-30 pointer-events-auto"
       style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right }}
+      // 進場時淡入，然後就一直保持顯示
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1, x: dodgePos.x, y: dodgePos.y }}
       transition={{ 
         x: { type: "spring", stiffness: 120, damping: 15 },
         y: { type: "spring", stiffness: 120, damping: 15 },
-        opacity: { duration: 0.3, delay: tag.delay }
+        opacity: { duration: 0.6, delay: tag.delay }
       }}
       onMouseEnter={handleHover}
     >
       <motion.div
         animate={{ 
-          y: [-6, 6, -6], 
-          x: [-3, 3, -3],
-          rotate: [-2, 2, -2]
+          y: [-8, 8, -8], // 預設的緩慢漂浮動畫
+          x: [-4, 4, -4],
+          rotate: [-3, 3, -3]
         }}
         transition={{ 
-          duration: 4 + (idx % 3), 
+          duration: 5 + (idx % 3), 
           repeat: Infinity, 
           ease: "easeInOut" 
         }}
-        className="whitespace-nowrap bg-white/70 backdrop-blur-xl border border-white/80 text-slate-800 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-black tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.12)] cursor-default transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+        className="whitespace-nowrap bg-white/85 backdrop-blur-xl border border-white/90 text-slate-800 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-black tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.12)] cursor-default transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
         style={{ borderLeft: `4px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
       >
         {tag.text}
@@ -424,22 +437,22 @@ const ProfileDodgeTag = ({ tag, idx }) => {
   );
 };
 
-// --- 頭像組件 ---
+// --- 頭像組件 (移除 Hover 限制，讓 Tag 永遠存在) ---
 const ProfilePhoto = ({ mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
   const floatTags = [
-    { text: "產品策略規劃", top: "0%", left: "-2%", delay: 0 },
-    { text: "數位內容營運", top: "20%", right: "-5%", delay: 0.1 },
-    { text: "專案協同管理", bottom: "15%", left: "-5%", delay: 0.2 },
-    { text: "UIUX 體驗設計", bottom: "5%", right: "-2%", delay: 0.15 },
-    { text: "SEO 與數據分析", top: "45%", left: "-10%", delay: 0.25 },
-    { text: "商業化 Package 策略", bottom: "40%", right: "-12%", delay: 0.3 }
+    { text: "產品策略規劃", top: "-5%", left: "-8%", delay: 0.1 },
+    { text: "數位內容營運", top: "15%", right: "-12%", delay: 0.2 },
+    { text: "專案協同管理", bottom: "10%", left: "-10%", delay: 0.3 },
+    { text: "UIUX 體驗設計", bottom: "0%", right: "-8%", delay: 0.4 },
+    { text: "SEO 與數據分析", top: "40%", left: "-15%", delay: 0.5 },
+    { text: "Package 商業策略", bottom: "35%", right: "-18%", delay: 0.6 }
   ];
 
   return (
-    <div className="z-20 pointer-events-auto relative mt-8 md:mt-0 w-full flex justify-center md:block md:w-auto">
+    <div className="z-20 pointer-events-auto relative mt-16 md:mt-0 w-full flex justify-center md:block md:w-auto">
       <div style={{ perspective: '1200px' }} className="relative">
         <motion.div
           onMouseEnter={() => setIsHovered(true)}
@@ -448,12 +461,13 @@ const ProfilePhoto = ({ mouse }) => {
           transition={{ type: 'spring', stiffness: 100, damping: 20 }}
           className="relative cursor-none z-10"
         >
-          <div className="relative w-60 h-60 md:w-[28rem] md:h-[28rem] rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[4px] md:border-[6px] border-white bg-slate-100 mx-auto">
+          <div className="relative w-56 h-56 md:w-[26rem] md:h-[26rem] rounded-[3rem] md:rounded-[4rem] overflow-hidden shadow-[0_20px_50px_rgba(0,0,0,0.1)] border-[4px] md:border-[6px] border-white bg-slate-100 mx-auto">
             <img src={avatarUrl} alt="Profile" className={`w-full h-full object-cover transition-transform duration-[1200ms] ${isHovered ? 'scale-105' : ''}`} />
           </div>
           
+          {/* ★ 優化：移除 isHovered 判斷，讓標籤直接渲染並常駐漂浮 */}
           <AnimatePresence>
-            {isHovered && floatTags.map((tag, idx) => (
+            {floatTags.map((tag, idx) => (
               <ProfileDodgeTag key={idx} tag={tag} idx={idx} />
             ))}
           </AnimatePresence>
@@ -516,7 +530,6 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
 
 // --- 主程式組件 ---
 const App = () => {
-  // ★ 使用偵測設備的 Hook
   const isMobile = useIsMobile();
   
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
@@ -524,7 +537,6 @@ const App = () => {
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
   useEffect(() => {
-    // 若為手機端，則解除全域滑鼠監聽以節省效能
     if (isMobile) return;
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
     window.addEventListener('mousemove', handleMouseMove);
@@ -569,7 +581,8 @@ const App = () => {
       tagBg: 'bg-orange-50',
       buttons: [
         { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
-        { label: "Deep Search 實機展示", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
+        // ★ 優化：文案更改為更直覺的 Deep Search 展示影片
+        { label: "Deep Search 展示影片", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
     },
@@ -714,7 +727,6 @@ const App = () => {
   return (
     <div className="min-h-screen bg-white text-slate-800 font-sans relative overflow-x-hidden" style={{ cursor: isMobile ? 'auto' : 'none' }}>
       <AestheticProgressBar />
-      {/* ★ 只有非手機端才渲染自訂滑鼠與 Canvas 粒子特效 */}
       {!isMobile && <CustomCursor />}
       <AmbientBlobs isMobile={isMobile} />
       {!isMobile && <NeuralMeshBackground mouse={mousePos} />}
@@ -1077,7 +1089,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V11.10
+            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V12.3
           </div>
         </div>
       </footer>
