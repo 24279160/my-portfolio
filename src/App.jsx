@@ -8,7 +8,7 @@ import {
   Users, 
   X, 
   CheckCircle2,
-  Sparkles,
+  Sparkles, 
   ArrowDown,
   Search,
   Package,
@@ -80,7 +80,7 @@ const CustomCursor = () => {
   const [isHovering, setIsHovering] = useState(false);
   const [isVisible, setIsVisible] = useState(false);
 
-  const springConfig = { damping: 35, stiffness: 280, mass: 0.5 };
+  const springConfig = { damping: 45, stiffness: 280, mass: 0.6 };
   const cursorX = useSpring(0, springConfig);
   const cursorY = useSpring(0, springConfig);
 
@@ -120,8 +120,8 @@ const CustomCursor = () => {
         style={{ x: cursorX, y: cursorY, translateX: '-50%', translateY: '-50%' }}
         animate={{ 
           rotate: isHovering ? 90 : 0,
-          scale: isHovering ? 1.4 : 1,
-          opacity: isHovering ? 0.7 : 0.25
+          scale: isHovering ? 1.2 : 1,
+          opacity: isHovering ? 0.6 : 0.2
         }}
       >
         <div className="absolute top-0 left-0 w-3 h-3 border-t-2 border-l-2 border-current rounded-tl-sm" />
@@ -192,7 +192,7 @@ const NeuralMeshBackground = ({ mouse }) => {
           particles.slice(i + 1, i + 12).forEach(p2 => {
             const d2 = Math.sqrt((p.x - p2.x)**2 + (p.y - p2.y)**2);
             if (d2 < 110) {
-              ctx.strokeStyle = `rgba(255, 140, 66, ${0.15 * (1 - d2/110) * (1 - dist/380)})`;
+              ctx.strokeStyle = `rgba(255, 140, 66, ${0.12 * (1 - d2/110) * (1 - dist/380)})`;
               ctx.lineWidth = 0.5;
               ctx.beginPath(); ctx.moveTo(p.x, p.y); ctx.lineTo(p2.x, p2.y); ctx.stroke();
             }
@@ -217,18 +217,18 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
-// --- ★ 新增：專案圖片輪播組件 (熔接效果) ---
+// --- ★ 優化：專案圖片輪播組件 (5 秒停留) ---
 const ImageCarousel = ({ images }) => {
   const [index, setIndex] = useState(0);
   useEffect(() => {
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % images.length);
-    }, 3000); // 停留 3 秒
+    }, 5000); 
     return () => clearInterval(timer);
   }, [images.length]);
 
   return (
-    <div className="absolute inset-0 w-full h-full">
+    <div className="absolute inset-0 w-full h-full bg-slate-100">
       <AnimatePresence mode="wait">
         <motion.img
           key={images[index]}
@@ -236,7 +236,7 @@ const ImageCarousel = ({ images }) => {
           initial={{ opacity: 0 }}
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
-          transition={{ duration: 0.5, ease: "easeInOut" }} // 0.5 秒過渡
+          transition={{ duration: 0.25, ease: "linear" }}
           className="absolute inset-0 w-full h-full object-cover"
         />
       </AnimatePresence>
@@ -244,7 +244,7 @@ const ImageCarousel = ({ images }) => {
   );
 };
 
-// --- 互動卡片容器 (專案使用) ---
+// --- 互動卡片容器 (專案使用 - 沈穩的傾斜感) ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glow, setGlow] = useState({ x: 50, y: 50 });
@@ -259,8 +259,8 @@ const TiltCard = ({ children, className = "" }) => {
     setGlow({ x: glowX, y: glowY });
     const centerX = box.width / 2;
     const centerY = box.height / 2;
-    const rotateX = (y - centerY) / 45;
-    const rotateY = (centerX - x) / 45;
+    const rotateX = (y - centerY) / 90;
+    const rotateY = (centerX - x) / 90;
     setRotate({ x: rotateX, y: rotateY });
   };
 
@@ -342,8 +342,8 @@ const MagneticHeadline = ({ mouse }) => {
       const dx = mouse.x - h1CenterX;
       const dy = mouse.y - h1CenterY;
       setOffset({
-        x: Math.max(-10, Math.min(10, dx * 0.05)),
-        y: Math.max(-6, Math.min(6, dy * 0.05))
+        x: Math.max(-8, Math.min(8, dx * 0.03)),
+        y: Math.max(-4, Math.min(4, dy * 0.03))
       });
     } else {
       setOffset({ x: 0, y: 0 });
@@ -365,7 +365,7 @@ const MagneticHeadline = ({ mouse }) => {
       id: Date.now() + i,
       emoji: emojisList[Math.floor(Math.random() * emojisList.length)],
       angle: (i * (Math.PI * 2)) / 9 + (Math.random() - 0.5) * 0.5, 
-      distance: 80 + Math.random() * 100, 
+      distance: 70 + Math.random() * 80, 
     }));
     setBursts(newBursts);
   };
@@ -417,7 +417,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 常項漂浮標籤 ---
+// --- 常項漂浮標籤 (擴散優化) ---
 const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
@@ -433,7 +433,7 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
     }, 2000);
   };
 
-  const mobileScatterMult = isMobile ? 1.8 : 1;
+  const mobileScatterMult = isMobile ? 2.2 : 1;
 
   return (
     <motion.div
@@ -479,13 +479,13 @@ const ProfilePhoto = ({ isMobile }) => {
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
   const floatTags = [
-    { text: "產品策略規劃", top: "-5%", left: "-8%", delay: 0.1 },
-    { text: "數位內容營運", top: "15%", right: "-12%", delay: 0.2 },
-    { text: "專案協同管理", bottom: "10%", left: "-10%", delay: 0.3 },
-    { text: "UIUX 體驗設計", bottom: "0%", right: "-8%", delay: 0.4 },
-    { text: "SEO 與數據分析", top: "40%", left: "-15%", delay: 0.5 },
-    { text: "Package 商業策略", bottom: "35%", right: "-18%", delay: 0.6 },
-    { text: "Vibe Coding", top: "28%", left: "-22%", delay: 0.7 } // ★ 新增：Vibe Coding Tag
+    { text: "產品策略規劃", top: "-12%", left: "-15%", delay: 0.1 },
+    { text: "數位內容營運", top: "10%", right: "-25%", delay: 0.2 },
+    { text: "專案協同管理", bottom: "10%", left: "-28%", delay: 0.3 },
+    { text: "UIUX 體驗設計", bottom: "-10%", right: "-15%", delay: 0.4 },
+    { text: "SEO 與數據分析", top: "45%", left: "-32%", delay: 0.5 },
+    { text: "Package 商業策略", bottom: "40%", right: "-32%", delay: 0.6 },
+    { text: "Vibe Coding", top: "25%", left: "-38%", delay: 0.7 }
   ];
 
   return (
@@ -571,10 +571,10 @@ const App = () => {
   const [hoveredContact, setHoveredContact] = useState(null);
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
-  // ★ 新增：OG Meta 縮圖設定
+  // ★ 更新：OG Meta 與正名 Ren Hao Zheng
   useEffect(() => {
-    const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
-    document.title = "Jen-Hao Cheng | Software Project Manager Portfolio";
+    const shareImageUrl = "https://lh3.googleusercontent.com/d/1EMGkWw1l7WfzJJ8bp7jx2oXG9P-FrR0i";
+    document.title = "Ren Hao Zheng | Software Project Manager Portfolio";
     const setMeta = (property, content) => {
       let meta = document.querySelector(`meta[property='${property}']`);
       if (!meta) {
@@ -585,8 +585,12 @@ const App = () => {
       meta.setAttribute('content', content);
     };
     setMeta('og:title', '鄭人豪 | 軟體專案經理 作品集');
-    setMeta('og:description', '橫跨 UI/UX 設計底蘊，專注於軟體產品商業化與大型專案落地的產品經理。');
-    setMeta('og:image', avatarUrl);
+    setMeta('og:description', '橫跨 UI/UX 背景，專注於軟體產品商業化與 4,000 萬大型專案落地的產品導向型 PM。');
+    setMeta('og:image', shareImageUrl);
+    setMeta('og:image:secure_url', shareImageUrl);
+    setMeta('og:image:type', 'image/png');
+    setMeta('og:image:width', '1200');
+    setMeta('og:image:height', '630');
     setMeta('og:type', 'website');
   }, []);
 
@@ -624,15 +628,19 @@ const App = () => {
       id: 'actorcore',
       title: 'ActorCore 平台搜尋與 IA 重構',
       desc: '主導 3D 素材電商平台搜尋優化。分析自然語言搜尋行為，重定義 Deep Search 邏輯，並針對歐美市場規劃高轉化率架構。',
-      results: ['搜尋成功率提升 20%', '優化商城內容結構'],
-      // ★ 新增：輪播圖片
+      // ★ 更新內容文字：搜尋成功率、內容結構、搜尋時間
+      results: [
+        '搜尋成功率提升 20%，強化長尾詞精準匹配',
+        '優化商城內容結構，點擊率 (CTR) 提升約 20%',
+        '優化 IA 導覽邏輯，使用者平均搜尋時間下降約 15–20%'
+      ],
       carousel: [
         "https://lh3.googleusercontent.com/d/1kSLZMTtsJ7_8KpGYdkoy8LOXVNkDM_j9",
         "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7"
       ],
       icon: Search,
       isFlagship: true,
-      pmDeliverables: ['Deep Search PRD', 'Information Architecture', 'Data Tracking'],
+      pmDeliverables: ['Deep Search PRD', 'UX Workflow Refinement', 'Tactical Theme Tagging'],
       highlightMetric: '+20% Success',
       tagLabel: 'REALLUSION PROJECT',
       tagColor: '#FF8C42',
@@ -646,13 +654,24 @@ const App = () => {
     {
       id: 'content-store',
       title: 'Content Store 商業化包裝策略',
-      desc: '負責歐美平台 Package Strategy。設計營運模組與 Promotion Page，結合 Theme/Bundle 模型有效提升 CTR 與商業轉換。',
-      results: ['CTR 提升約 10–15%', '客製化 Page 驅動流量轉換'],
-      img: "https://lh3.googleusercontent.com/d/1onA8n6Ydj4qu3SYtZi57ciEXgktuxICE", 
+      desc: '負責歐美平台 Package Strategy。設計營運模組與 Promotion Page，結合 Theme/Bundle 模型有效提升產品結構清晰度與營收。',
+      // ★ 更新內容文字：主題商品線、內容理解時間、轉換率、營收動能
+      results: [
+        '建立多個主題商品線 (BMX / Gorilla 等)，大幅提升產品結構清晰度',
+        '優化商品呈現邏輯，使用者內容理解時間下降約 20%',
+        '商品頁轉換率 (CVR) 顯著提升約 10–15%',
+        '成功支援平台大型促銷活動，強化整體營收成長動能'
+      ],
+      carousel: [
+        "https://lh3.googleusercontent.com/d/1g_rcviph46Hh_fzLNZRv5MAFI-NtjbIF",
+        "https://lh3.googleusercontent.com/d/1UJqsUxols3CZBErceDvCEl-4ZhEXeQvA",
+        "https://lh3.googleusercontent.com/d/14jXThIInjc5XE4krE0o-V4njuUgQmmtq"
+      ],
       icon: Package,
       isFlagship: true,
-      pmDeliverables: ['Pricing Matrix', 'Promotion Flow', 'Bundling Strategy'],
-      highlightMetric: '+15% CTR',
+      // ★ 更新 Tag：Pricing Matrix 改為 Cross-dept Sync
+      pmDeliverables: ['Cross-dept Sync', 'Promotion Flow', 'Bundling Strategy'],
+      highlightMetric: '+15% CVR',
       tagLabel: 'REALLUSION PROJECT',
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
@@ -669,7 +688,8 @@ const App = () => {
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
       isFlagship: false,
-      pmDeliverables: ['System Flow Chart', 'Acceptance Criteria', 'Cross-dept Sync'],
+      // ★ 更新 Tag：照指定內容修正
+      pmDeliverables: ['System Flow Chart', 'Milestone Validation', 'Cross-dept Sync'],
       highlightMetric: '$40M Delivered',
       tagLabel: 'GLOBAL POWER PROJECT',
       tagColor: '#2dd4bf',
@@ -684,12 +704,13 @@ const App = () => {
       id: 'bus-plus',
       title: 'Bus+ App 使用體驗優化',
       desc: '針對 Bus+ App 使用體驗進行重構。主導使用者研究並分析通勤情境，重新定義資訊架構優先順序，規劃產品優化 Roadmap 與設計流程。',
-      results: ['Usability 測試中操作時間顯著縮短', '超過 90% 測試者回饋體驗提升', '使用流程大幅簡化，降低查詢步驟'],
+      // ★ 文字修正：超過 80% 回饋
+      results: ['Usability 測試中操作時間顯著縮短', '超過 80% 測試者回饋體驗提升', '使用流程大幅簡化，降低查詢步驟'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
       isFlagship: false,
-      pmDeliverables: ['使用者研究', '產品 Roadmap', 'Design System'],
-      highlightMetric: '>90% Satisfaction',
+      pmDeliverables: ['User Research', 'Product Roadmap', 'Design System'],
+      highlightMetric: '>80% Satisfaction',
       tagLabel: 'PROJ. LEADER (PM+UIUX)',
       tagColor: '#64748b',
       tagBg: 'bg-slate-100',
@@ -787,9 +808,14 @@ const App = () => {
       {!isMobile && <NeuralMeshBackground mouse={mousePos} />}
       
       <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
-        <div className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto" onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}>
-          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md">RH</div>
-          <span className="font-bold uppercase tracking-widest text-sm text-slate-900">REN <span className="text-slate-600">HAO</span></span>
+        <div 
+          className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto group" 
+          onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
+        >
+          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md transition-transform duration-300 group-hover:scale-110">RH</div>
+          <span className="font-bold uppercase tracking-widest text-sm text-slate-900 transition-all duration-300 group-hover:tracking-[0.2em] group-hover:text-[#FF8C42]">
+            REN <span className="text-slate-600 group-hover:text-[#FF8C42]">HAO</span>
+          </span>
         </div>
         <div className="hidden md:flex space-x-10 font-bold text-xs tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
           <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
@@ -943,19 +969,25 @@ const App = () => {
                 `}
               >
                 <div className={`w-full md:w-[48%] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0 ${project.isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
-                  {/* ★ 圖片顯示邏輯：支援輪播或單圖 */}
                   {project.carousel ? (
                     <ImageCarousel images={project.carousel} />
                   ) : (
-                    <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
+                    <div className="w-full h-full overflow-hidden">
+                      <motion.img 
+                        src={project.img} 
+                        alt={project.title} 
+                        whileHover={{ scale: 1.15, rotate: -1.5 }} 
+                        transition={{ duration: 1.2, ease: "easeOut" }} 
+                        className="w-full h-full object-cover" 
+                      />
+                    </div>
                   )}
                   
-                  {/* ★ 重點數據卡片：抽離動畫層，穩定顯示 */}
                   <motion.div 
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
                     transition={{ delay: 0.4 }}
-                    className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30"
+                    className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30 pointer-events-none"
                   >
                     <div className="flex items-center gap-2 mb-1">
                       <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
@@ -1150,7 +1182,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · SOFTWARE PM PORTFOLIO V15.5
+            © 2026 REN HAO ZHENG · SOFTWARE PM PORTFOLIO V17.1
           </div>
         </div>
       </footer>
