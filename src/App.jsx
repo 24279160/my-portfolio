@@ -217,7 +217,7 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
-// --- ★ 優化：專案圖片輪播組件 (5 秒停留) ---
+// --- ★ 專案圖片輪播組件 (5 秒停留) ---
 const ImageCarousel = ({ images }) => {
   const [index, setIndex] = useState(0);
   useEffect(() => {
@@ -244,7 +244,7 @@ const ImageCarousel = ({ images }) => {
   );
 };
 
-// --- 互動卡片容器 (專案使用 - 沈穩的傾斜感) ---
+// --- 互動卡片容器 ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
   const [glow, setGlow] = useState({ x: 50, y: 50 });
@@ -325,7 +325,7 @@ const MetricCard = ({ impact, className = "" }) => {
   );
 };
 
-// --- 優化：磁吸互動標題組件 ---
+// --- 磁吸互動標題 ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -417,7 +417,7 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- 常項漂浮標籤 (擴散優化) ---
+// --- 常項漂浮標籤 (手收攏優化) ---
 const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
@@ -433,7 +433,8 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
     }, 2000);
   };
 
-  const mobileScatterMult = isMobile ? 2.2 : 1;
+  // ★ 調整：手機版不再擴大，而是縮小擴散範圍，讓標籤乖乖圍在帥照周圍
+  const mobileScatterMult = isMobile ? 0.8 : 1; 
 
   return (
     <motion.div
@@ -478,14 +479,15 @@ const ProfilePhoto = ({ isMobile }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
+  // ★ 調整：進一步收攏左側座標，確保標籤不會飛出去
   const floatTags = [
-    { text: "產品策略規劃", top: "-12%", left: "-15%", delay: 0.1 },
-    { text: "數位內容營運", top: "10%", right: "-25%", delay: 0.2 },
-    { text: "專案協同管理", bottom: "10%", left: "-28%", delay: 0.3 },
-    { text: "UIUX 體驗設計", bottom: "-10%", right: "-15%", delay: 0.4 },
-    { text: "SEO 與數據分析", top: "45%", left: "-32%", delay: 0.5 },
-    { text: "Package 商業策略", bottom: "40%", right: "-32%", delay: 0.6 },
-    { text: "Vibe Coding", top: "25%", left: "-38%", delay: 0.7 }
+    { text: "產品策略規劃", top: "-10%", left: "0%", delay: 0.1 },        // 原 left -5% -> 0%
+    { text: "數位內容營運", top: "10%", right: "-20%", delay: 0.2 },
+    { text: "專案協同管理", bottom: "10%", left: "-5%", delay: 0.3 },      // 原 left -10% -> -5%
+    { text: "UIUX 體驗設計", bottom: "-10%", right: "-12%", delay: 0.4 },
+    { text: "SEO 與數據分析", top: "45%", left: "-8%", delay: 0.5 },       // 原 left -12% -> -8%
+    { text: "Package 商業策略", bottom: "40%", right: "-28%", delay: 0.6 },
+    { text: "Vibe Coding", top: "25%", left: "-10%", delay: 0.7 }
   ];
 
   return (
@@ -571,7 +573,6 @@ const App = () => {
   const [hoveredContact, setHoveredContact] = useState(null);
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
-  // ★ 更新：OG Meta 與正名 Ren Hao Zheng
   useEffect(() => {
     const shareImageUrl = "https://lh3.googleusercontent.com/d/1EMGkWw1l7WfzJJ8bp7jx2oXG9P-FrR0i";
     document.title = "Ren Hao Zheng | Software Project Manager Portfolio";
@@ -628,7 +629,6 @@ const App = () => {
       id: 'actorcore',
       title: 'ActorCore 平台搜尋與 IA 重構',
       desc: '主導 3D 素材電商平台搜尋優化。分析自然語言搜尋行為，重定義 Deep Search 邏輯，並針對歐美市場規劃高轉化率架構。',
-      // ★ 更新內容文字：搜尋成功率、內容結構、搜尋時間
       results: [
         '搜尋成功率提升 20%，強化長尾詞精準匹配',
         '優化商城內容結構，點擊率 (CTR) 提升約 20%',
@@ -655,7 +655,6 @@ const App = () => {
       id: 'content-store',
       title: 'Content Store 商業化包裝策略',
       desc: '負責歐美平台 Package Strategy。設計營運模組與 Promotion Page，結合 Theme/Bundle 模型有效提升產品結構清晰度與營收。',
-      // ★ 更新內容文字：主題商品線、內容理解時間、轉換率、營收動能
       results: [
         '建立多個主題商品線 (BMX / Gorilla 等)，大幅提升產品結構清晰度',
         '優化商品呈現邏輯，使用者內容理解時間下降約 20%',
@@ -669,7 +668,6 @@ const App = () => {
       ],
       icon: Package,
       isFlagship: true,
-      // ★ 更新 Tag：Pricing Matrix 改為 Cross-dept Sync
       pmDeliverables: ['Cross-dept Sync', 'Promotion Flow', 'Bundling Strategy'],
       highlightMetric: '+15% CVR',
       tagLabel: 'REALLUSION PROJECT',
@@ -688,7 +686,6 @@ const App = () => {
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
       isFlagship: false,
-      // ★ 更新 Tag：照指定內容修正
       pmDeliverables: ['System Flow Chart', 'Milestone Validation', 'Cross-dept Sync'],
       highlightMetric: '$40M Delivered',
       tagLabel: 'GLOBAL POWER PROJECT',
@@ -704,7 +701,6 @@ const App = () => {
       id: 'bus-plus',
       title: 'Bus+ App 使用體驗優化',
       desc: '針對 Bus+ App 使用體驗進行重構。主導使用者研究並分析通勤情境，重新定義資訊架構優先順序，規劃產品優化 Roadmap 與設計流程。',
-      // ★ 文字修正：超過 80% 回饋
       results: ['Usability 測試中操作時間顯著縮短', '超過 80% 測試者回饋體驗提升', '使用流程大幅簡化，降低查詢步驟'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
@@ -1182,7 +1178,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 REN HAO ZHENG · SOFTWARE PM PORTFOLIO V17.1
+            © 2026 REN HAO ZHENG · SOFTWARE PM PORTFOLIO V17.3
           </div>
         </div>
       </footer>
