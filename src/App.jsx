@@ -217,6 +217,33 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
+// --- ★ 新增：專案圖片輪播組件 (熔接效果) ---
+const ImageCarousel = ({ images }) => {
+  const [index, setIndex] = useState(0);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 3000); // 停留 3 秒
+    return () => clearInterval(timer);
+  }, [images.length]);
+
+  return (
+    <div className="absolute inset-0 w-full h-full">
+      <AnimatePresence mode="wait">
+        <motion.img
+          key={images[index]}
+          src={images[index]}
+          initial={{ opacity: 0 }}
+          animate={{ opacity: 1 }}
+          exit={{ opacity: 0 }}
+          transition={{ duration: 0.5, ease: "easeInOut" }} // 0.5 秒過渡
+          className="absolute inset-0 w-full h-full object-cover"
+        />
+      </AnimatePresence>
+    </div>
+  );
+};
+
 // --- 互動卡片容器 (專案使用) ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
@@ -298,7 +325,7 @@ const MetricCard = ({ impact, className = "" }) => {
   );
 };
 
-// --- ★ 優化：磁吸互動標題組件 (加入 Hover Me 提示 & 9 顆 Emoji 噴發 & 回復邏輯) ---
+// --- 優化：磁吸互動標題組件 ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -323,7 +350,6 @@ const MagneticHeadline = ({ mouse }) => {
     }
   }, [mouse, isHovered]);
 
-  // ★ 手機版/電腦版點擊後回報機制：噴發後 3.5 秒自動恢復標籤狀態
   useEffect(() => {
     if (isHovered) {
       const resetTimer = setTimeout(() => {
@@ -335,12 +361,11 @@ const MagneticHeadline = ({ mouse }) => {
 
   const triggerEmojiBurst = () => {
     setIsHovered(true);
-    // 噴發數量改為 9 顆，保留趣味性但不干擾閱讀
     const newBursts = Array.from({ length: 9 }).map((_, i) => ({
       id: Date.now() + i,
       emoji: emojisList[Math.floor(Math.random() * emojisList.length)],
       angle: (i * (Math.PI * 2)) / 9 + (Math.random() - 0.5) * 0.5, 
-      distance: 80 + Math.random() * 100, // 更遠的噴發距離
+      distance: 80 + Math.random() * 100, 
     }));
     setBursts(newBursts);
   };
@@ -350,7 +375,7 @@ const MagneticHeadline = ({ mouse }) => {
       <motion.h1 
         ref={h1Ref}
         onMouseEnter={triggerEmojiBurst}
-        onMouseLeave={() => {}} // 移除 MouseLeave 立即消失，交給 Timer 處理
+        onMouseLeave={() => {}}
         animate={{ x: offset.x, y: offset.y }}
         transition={{ type: 'spring', stiffness: 220, damping: 25 }}
         className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300 flex items-center flex-wrap gap-x-4"
@@ -360,8 +385,6 @@ const MagneticHeadline = ({ mouse }) => {
         }}
       >
         <span>HI, I AM <span className="italic">REN.</span></span>
-        
-        {/* ★ 新增：提示小標籤 (Hover Me!) */}
         <motion.div
           animate={{ opacity: isHovered ? 0 : 1, y: isHovered ? -10 : 0 }}
           transition={{ duration: 0.3 }}
@@ -394,26 +417,22 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- ★ 優化：常駐漂浮但碰到會逃跑的毛玻璃標籤 (手機版加大散開距離) ---
+// --- 常項漂浮標籤 ---
 const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
   const handleHover = () => {
-    // 滑鼠碰觸時的逃跑邏輯
     const angle = Math.random() * Math.PI * 2;
     const distance = 30 + Math.random() * 20; 
     setDodgePos({
       x: Math.cos(angle) * distance,
       y: Math.sin(angle) * distance
     });
-
-    // 一段時間後慢慢飛回來
     setTimeout(() => {
       setDodgePos({ x: 0, y: 0 });
     }, 2000);
   };
 
-  // ★ 手機版擴散係數：增加 1.8 倍位移，確保不擋到臉
   const mobileScatterMult = isMobile ? 1.8 : 1;
 
   return (
@@ -436,7 +455,7 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
     >
       <motion.div
         animate={{ 
-          y: [-8, 8, -8], // 預設的緩慢漂浮動畫
+          y: [-8, 8, -8], 
           x: [-4, 4, -4],
           rotate: [-3, 3, -3]
         }}
@@ -455,7 +474,7 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
 };
 
 // --- 頭像組件 ---
-const ProfilePhoto = ({ isMobile, mouse }) => {
+const ProfilePhoto = ({ isMobile }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
@@ -465,7 +484,8 @@ const ProfilePhoto = ({ isMobile, mouse }) => {
     { text: "專案協同管理", bottom: "10%", left: "-10%", delay: 0.3 },
     { text: "UIUX 體驗設計", bottom: "0%", right: "-8%", delay: 0.4 },
     { text: "SEO 與數據分析", top: "40%", left: "-15%", delay: 0.5 },
-    { text: "Package 商業策略", bottom: "35%", right: "-18%", delay: 0.6 }
+    { text: "Package 商業策略", bottom: "35%", right: "-18%", delay: 0.6 },
+    { text: "Vibe Coding", top: "28%", left: "-22%", delay: 0.7 } // ★ 新增：Vibe Coding Tag
   ];
 
   return (
@@ -547,11 +567,29 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
 // --- 主程式組件 ---
 const App = () => {
   const isMobile = useIsMobile();
-  
   const [mousePos, setMousePos] = useState({ x: 0, y: 0 });
   const [hoveredContact, setHoveredContact] = useState(null);
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
+  // ★ 新增：OG Meta 縮圖設定
+  useEffect(() => {
+    const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
+    document.title = "Jen-Hao Cheng | Software Project Manager Portfolio";
+    const setMeta = (property, content) => {
+      let meta = document.querySelector(`meta[property='${property}']`);
+      if (!meta) {
+        meta = document.createElement('meta');
+        meta.setAttribute('property', property);
+        document.head.appendChild(meta);
+      }
+      meta.setAttribute('content', content);
+    };
+    setMeta('og:title', '鄭人豪 | 軟體專案經理 作品集');
+    setMeta('og:description', '橫跨 UI/UX 設計底蘊，專注於軟體產品商業化與大型專案落地的產品經理。');
+    setMeta('og:image', avatarUrl);
+    setMeta('og:type', 'website');
+  }, []);
+
   useEffect(() => {
     if (isMobile) return;
     const handleMouseMove = (e) => setMousePos({ x: e.clientX, y: e.clientY });
@@ -570,7 +608,7 @@ const App = () => {
     { icon: <Search size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "體驗重構", text: <>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
     { icon: <Globe2 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "架構優化", text: <>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
     { icon: <Package size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "定價包裝", text: <>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
-    { icon: <BarChart3 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "營運增長", text: <>設計營運模組（Promotion / Offer Page），支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
+    { icon: <BarChart3 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "營運增長", text: <>設計營運模組 (Promotion / Offer Page)，支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
     { icon: <Users size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "跨國協作", text: <>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
   ];
 
@@ -587,7 +625,11 @@ const App = () => {
       title: 'ActorCore 平台搜尋與 IA 重構',
       desc: '主導 3D 素材電商平台搜尋優化。分析自然語言搜尋行為，重定義 Deep Search 邏輯，並針對歐美市場規劃高轉化率架構。',
       results: ['搜尋成功率提升 20%', '優化商城內容結構'],
-      img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7", 
+      // ★ 新增：輪播圖片
+      carousel: [
+        "https://lh3.googleusercontent.com/d/1kSLZMTtsJ7_8KpGYdkoy8LOXVNkDM_j9",
+        "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7"
+      ],
       icon: Search,
       isFlagship: true,
       pmDeliverables: ['Deep Search PRD', 'Information Architecture', 'Data Tracking'],
@@ -597,7 +639,6 @@ const App = () => {
       tagBg: 'bg-orange-50',
       buttons: [
         { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
-        // ★ 優化：文案更改為更直覺的 Deep Search 展示影片
         { label: "Deep Search 展示影片", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
@@ -623,7 +664,7 @@ const App = () => {
     {
       id: 'police-xr',
       title: '警署 XR 模擬訓練系統 (0→1)',
-      desc: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收，包含 people being blown away 等精確細節。',
+      desc: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收細節。',
       results: ['完成 4,000 萬標案驗收', '成功導入全台教學體系'],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
@@ -642,8 +683,8 @@ const App = () => {
     {
       id: 'bus-plus',
       title: 'Bus+ App 使用體驗優化',
-      desc: '針對 Bus+ App 使用體驗進行重構。主導使用者研究並分析通勤/即時查詢情境，重新定義資訊架構與優先順序，規劃產品優化 Roadmap 與設計流程。',
-      results: ['Usability 測試中操作時間顯著縮短', '超過 90% 測試者回饋操作體驗提升', '使用流程大幅簡化，降低查詢步驟'],
+      desc: '針對 Bus+ App 使用體驗進行重構。主導使用者研究並分析通勤情境，重新定義資訊架構優先順序，規劃產品優化 Roadmap 與設計流程。',
+      results: ['Usability 測試中操作時間顯著縮短', '超過 90% 測試者回饋體驗提升', '使用流程大幅簡化，降低查詢步驟'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
       isFlagship: false,
@@ -798,7 +839,7 @@ const App = () => {
             </div>
           </div>
           <div className="w-full md:w-[50%] flex justify-center md:justify-end mt-4 md:mt-0">
-            <ProfilePhoto isMobile={isMobile} mouse={mousePos} />
+            <ProfilePhoto isMobile={isMobile} />
           </div>
         </div>
       </section>
@@ -902,8 +943,14 @@ const App = () => {
                 `}
               >
                 <div className={`w-full md:w-[48%] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0 ${project.isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
-                  <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
+                  {/* ★ 圖片顯示邏輯：支援輪播或單圖 */}
+                  {project.carousel ? (
+                    <ImageCarousel images={project.carousel} />
+                  ) : (
+                    <motion.img src={project.img} alt={project.title} whileHover={{ scale: 1.1, rotate: -1 }} transition={{ duration: 1.5, ease: "easeOut" }} className="w-full h-full object-cover" />
+                  )}
                   
+                  {/* ★ 重點數據卡片：抽離動畫層，穩定顯示 */}
                   <motion.div 
                     initial={{ opacity: 0, y: 15 }}
                     whileInView={{ opacity: 1, y: 0 }}
@@ -922,7 +969,7 @@ const App = () => {
                 
                 <div className="flex-grow flex flex-col h-full py-2 relative z-20">
                   <div className="flex items-center gap-3 mb-4 text-left">
-                    <div className={`w-8 h-[2px] group-hover:w-12 transition-all duration-500`} style={{ backgroundColor: project.tagColor || '#cbd5e1' }}></div>
+                    <div className={`w-8 h-[2px] transition-all duration-500`} style={{ backgroundColor: project.tagColor || '#cbd5e1' }}></div>
                     <span className="text-xs font-black uppercase tracking-[0.3em]">
                       <span className={`px-2 py-1 rounded-md ${project.tagBg}`} style={{ color: project.tagColor }}>
                         {project.tagLabel}
@@ -1061,7 +1108,7 @@ const App = () => {
                 className="bg-white/60 backdrop-blur-lg p-10 rounded-[3.5rem] border border-white/60 shadow-lg hover:shadow-2xl transition-all overflow-hidden relative group cursor-pointer text-left"
               >
                 <motion.div 
-                  className="absolute -top-6 -right-6 w-32 h-32 opacity-5" 
+                  className="absolute -top-6 -right-6 w-32 h-32 opacity-05" 
                   style={{ color: opt.color }}
                   animate={hoveredContact === opt.id ? { rotate: 15, scale: 1.2, opacity: 0.15 } : { rotate: 0, scale: 1, opacity: 0.05 }}
                   transition={{ duration: 10, repeat: Infinity, repeatType: "reverse", ease: "linear" }}
@@ -1103,7 +1150,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · SOFTWARE PM PORTFOLIO V13.1
+            © 2026 JEN-HAO ZHENG · SOFTWARE PM PORTFOLIO V15.5
           </div>
         </div>
       </footer>
