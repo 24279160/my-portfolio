@@ -34,6 +34,17 @@ import {
   CheckCircle
 } from 'lucide-react';
 
+/**
+ * ============================================================================
+ * SOFTWARE PROJECT MANAGER PORTFOLIO - REN HAO ZHENG (V18.2)
+ * ----------------------------------------------------------------------------
+ * 系統核心說明：
+ * 1. 本檔案嚴格遵守 V18.0 架構，僅針對連結、按鈕、文案進行精確微調。
+ * 2. 採用 React + Tailwind CSS + Framer Motion 進行高性能渲染。
+ * 3. 專為軟體產品經理職務設計，強調商業化 (Commercialization) 與數據成果。
+ * ============================================================================
+ */
+
 // --- ★ 智慧設備偵測 Hook ---
 const useIsMobile = () => {
   const [isMobile, setIsMobile] = useState(false);
@@ -433,7 +444,6 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
     }, 2000);
   };
 
-  // ★ 調整：手機版不再擴大，而是縮小擴散範圍，讓標籤乖乖圍在帥照周圍
   const mobileScatterMult = isMobile ? 0.8 : 1; 
 
   return (
@@ -479,13 +489,12 @@ const ProfilePhoto = ({ isMobile }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
-  // ★ 調整：進一步收攏左側座標，確保標籤不會飛出去
   const floatTags = [
-    { text: "產品策略規劃", top: "-10%", left: "0%", delay: 0.1 },        // 原 left -5% -> 0%
+    { text: "產品策略規劃", top: "-10%", left: "0%", delay: 0.1 },        
     { text: "數位內容營運", top: "10%", right: "-20%", delay: 0.2 },
-    { text: "專案協同管理", bottom: "10%", left: "-5%", delay: 0.3 },      // 原 left -10% -> -5%
+    { text: "專案協同管理", bottom: "10%", left: "-5%", delay: 0.3 },      
     { text: "UIUX 體驗設計", bottom: "-10%", right: "-12%", delay: 0.4 },
-    { text: "SEO 與數據分析", top: "45%", left: "-8%", delay: 0.5 },       // 原 left -12% -> -8%
+    { text: "SEO 與數據分析", top: "45%", left: "-8%", delay: 0.5 },       
     { text: "Package 商業策略", bottom: "40%", right: "-28%", delay: 0.6 },
     { text: "Vibe Coding", top: "25%", left: "-10%", delay: 0.7 }
   ];
@@ -624,6 +633,7 @@ const App = () => {
     { icon: <ShieldCheck size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "專案交付", text: <>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
   ];
 
+  // ★ 專案清單 (根據 V18.0 基礎進行精確修改)
   const projects = [
     {
       id: 'actorcore',
@@ -646,7 +656,8 @@ const App = () => {
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
       buttons: [
-        { label: "查看商城連結", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
+        // ★ 文案修改：移除「連結」字眼
+        { label: "查看商城", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
         { label: "Deep Search 展示影片", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
       ],
       skills: ['Deep Search', 'IA Optimization', 'Data Analysis']
@@ -674,7 +685,8 @@ const App = () => {
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
       buttons: [
-        { label: "查看商城連結", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
+        // ★ 文案修改：移除「連結」字眼
+        { label: "查看商城", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
       ],
       skills: ['Package Strategy', 'Commercialization', 'CTR Growth']
     },
@@ -711,7 +723,10 @@ const App = () => {
       tagColor: '#64748b',
       tagBg: 'bg-slate-100',
       buttons: [
-        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> }
+        // ★ 連結更換 & 新增 Mockup/Prototype 按鈕
+        { label: "專案介紹", url: "https://canva.link/mpo3rc7dzmjknci", icon: <FileText size={14} /> },
+        { label: "Mockup 展示", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
+        { label: "Prototype 互動", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?page-id=138%3A1498&node-id=710-73139&viewport=-9828%2C1631%2C0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710%3A73139&show-proto-sidebar=1", icon: <Zap size={14} /> }
       ],
       skills: ['Project Leadership', 'IA Definition', 'Usability Testing']
     }
@@ -1116,7 +1131,7 @@ const App = () => {
                <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊與資源</h2>
-            <p className="text-slate-400 font-medium text-center">點擊下方卡片展開詳細聯絡資訊，期待與您的團隊共同創造價值。</p>
+            <p className="text-slate-400 font-medium text-center">期待與您的團隊共同創造具備「Stunning visual experiences」的產品價值。</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 mb-24 pointer-events-auto">
@@ -1169,16 +1184,13 @@ const App = () => {
                     <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
                     <div className="text-[15px] font-black text-slate-800 text-left">{opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}</div>
                   </div>
-                  <div className="absolute bottom-10 right-10 opacity-0 group-hover:opacity-100 translate-x-3 group-hover:translate-x-0 transition-all duration-500">
-                    <ArrowRight size={22} style={{ color: opt.color }} />
-                  </div>
                 </div>
               </motion.a>
             ))}
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 REN HAO ZHENG · SOFTWARE PM PORTFOLIO V17.3
+            © 2026 REN HAO ZHENG · SOFTWARE PM PORTFOLIO V18.2
           </div>
         </div>
       </footer>
