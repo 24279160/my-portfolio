@@ -298,7 +298,7 @@ const MetricCard = ({ impact, className = "" }) => {
   );
 };
 
-// --- ★ 優化：磁吸互動標題組件 (加入 Hover Me 提示 & 15 顆 Emoji 噴發) ---
+// --- ★ 優化：磁吸互動標題組件 (加入 Hover Me 提示 & 9 顆 Emoji 噴發 & 回復邏輯) ---
 const MagneticHeadline = ({ mouse }) => {
   const h1Ref = useRef(null);
   const [isHovered, setIsHovered] = useState(false);
@@ -323,6 +323,16 @@ const MagneticHeadline = ({ mouse }) => {
     }
   }, [mouse, isHovered]);
 
+  // ★ 手機版/電腦版點擊後回報機制：噴發後 3.5 秒自動恢復標籤狀態
+  useEffect(() => {
+    if (isHovered) {
+      const resetTimer = setTimeout(() => {
+        setIsHovered(false);
+      }, 3500);
+      return () => clearTimeout(resetTimer);
+    }
+  }, [isHovered]);
+
   const triggerEmojiBurst = () => {
     setIsHovered(true);
     // 噴發數量改為 9 顆，保留趣味性但不干擾閱讀
@@ -340,7 +350,7 @@ const MagneticHeadline = ({ mouse }) => {
       <motion.h1 
         ref={h1Ref}
         onMouseEnter={triggerEmojiBurst}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseLeave={() => {}} // 移除 MouseLeave 立即消失，交給 Timer 處理
         animate={{ x: offset.x, y: offset.y }}
         transition={{ type: 'spring', stiffness: 220, damping: 25 }}
         className="text-5xl md:text-[5.5rem] lg:text-[6.5rem] font-black leading-none tracking-tighter text-slate-900 select-none relative transition-colors duration-300 flex items-center flex-wrap gap-x-4"
@@ -384,8 +394,8 @@ const MagneticHeadline = ({ mouse }) => {
   );
 };
 
-// --- ★ 優化：常駐漂浮但碰到會逃跑的毛玻璃標籤 ---
-const ProfileDodgeTag = ({ tag, idx }) => {
+// --- ★ 優化：常駐漂浮但碰到會逃跑的毛玻璃標籤 (手機版加大散開距離) ---
+const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
   const [dodgePos, setDodgePos] = useState({ x: 0, y: 0 });
 
   const handleHover = () => {
@@ -403,11 +413,18 @@ const ProfileDodgeTag = ({ tag, idx }) => {
     }, 2000);
   };
 
+  // ★ 手機版擴散係數：增加 1.8 倍位移，確保不擋到臉
+  const mobileScatterMult = isMobile ? 1.8 : 1;
+
   return (
     <motion.div
       className="absolute z-30 pointer-events-auto"
-      style={{ top: tag.top, bottom: tag.bottom, left: tag.left, right: tag.right }}
-      // 進場時淡入，然後就一直保持顯示
+      style={{ 
+        top: `calc(${tag.top} * ${mobileScatterMult})`, 
+        bottom: `calc(${tag.bottom} * ${mobileScatterMult})`, 
+        left: `calc(${tag.left} * ${mobileScatterMult})`, 
+        right: `calc(${tag.right} * ${mobileScatterMult})` 
+      }}
       initial={{ opacity: 0, scale: 0.8 }}
       animate={{ opacity: 1, scale: 1, x: dodgePos.x, y: dodgePos.y }}
       transition={{ 
@@ -428,7 +445,7 @@ const ProfileDodgeTag = ({ tag, idx }) => {
           repeat: Infinity, 
           ease: "easeInOut" 
         }}
-        className="whitespace-nowrap bg-white/85 backdrop-blur-xl border border-white/90 text-slate-800 px-4 md:px-5 py-2 md:py-2.5 rounded-full text-xs md:text-[13px] font-black tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.12)] cursor-default transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
+        className="whitespace-nowrap bg-white/85 backdrop-blur-xl border border-white/90 text-slate-800 px-3 md:px-5 py-1.5 md:py-2.5 rounded-full text-[10px] md:text-[13px] font-black tracking-widest shadow-[0_8px_32px_rgba(0,0,0,0.12)] cursor-default transition-shadow hover:shadow-[0_12px_40px_rgba(0,0,0,0.2)]"
         style={{ borderLeft: `4px solid ${idx % 2 === 0 ? '#FF8C42' : '#2dd4bf'}` }}
       >
         {tag.text}
@@ -437,8 +454,8 @@ const ProfileDodgeTag = ({ tag, idx }) => {
   );
 };
 
-// --- 頭像組件 (移除 Hover 限制，讓 Tag 永遠存在) ---
-const ProfilePhoto = ({ mouse }) => {
+// --- 頭像組件 ---
+const ProfilePhoto = ({ isMobile, mouse }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
@@ -465,10 +482,9 @@ const ProfilePhoto = ({ mouse }) => {
             <img src={avatarUrl} alt="Profile" className={`w-full h-full object-cover transition-transform duration-[1200ms] ${isHovered ? 'scale-105' : ''}`} />
           </div>
           
-          {/* ★ 優化：移除 isHovered 判斷，讓標籤直接渲染並常駐漂浮 */}
           <AnimatePresence>
             {floatTags.map((tag, idx) => (
-              <ProfileDodgeTag key={idx} tag={tag} idx={idx} />
+              <ProfileDodgeTag key={idx} tag={tag} idx={idx} isMobile={isMobile} />
             ))}
           </AnimatePresence>
         </motion.div>
@@ -570,7 +586,7 @@ const App = () => {
       id: 'actorcore',
       title: 'ActorCore 平台搜尋與 IA 重構',
       desc: '主導 3D 素材電商平台搜尋優化。分析自然語言搜尋行為，重定義 Deep Search 邏輯，並針對歐美市場規劃高轉化率架構。',
-      results: ['搜尋成功率提升 20%', '優化商城推薦內容結構'],
+      results: ['搜尋成功率提升 20%', '優化商城內容結構'],
       img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7", 
       icon: Search,
       isFlagship: true,
@@ -625,23 +641,21 @@ const App = () => {
     },
     {
       id: 'bus-plus',
-      title: 'Bus+ APP 介面重構與優化',
-      desc: '擔任 UI Designer 參與 B2C 產品優化。獨立完成 Design System 建置與 Prototype 製作，以服務設計思維驅動迭代。',
-      results: ['目標受眾滿意度突破 80%', '建立可擴充的 UI 元件化規範'],
+      title: 'Bus+ App 使用體驗優化',
+      desc: '針對 Bus+ App 使用體驗進行重構。主導使用者研究並分析通勤/即時查詢情境，重新定義資訊架構與優先順序，規劃產品優化 Roadmap 與設計流程。',
+      results: ['Usability 測試中操作時間顯著縮短', '超過 90% 測試者回饋操作體驗提升', '使用流程大幅簡化，降低查詢步驟'],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P", 
       icon: LayoutTemplate,
       isFlagship: false,
-      pmDeliverables: ['Design System', 'User Research', 'Interactive Prototype'],
-      highlightMetric: '>80% Satisfaction',
-      tagLabel: 'CO-OP SIDE PROJECT',
+      pmDeliverables: ['使用者研究', '產品 Roadmap', 'Design System'],
+      highlightMetric: '>90% Satisfaction',
+      tagLabel: 'PROJ. LEADER (PM+UIUX)',
       tagColor: '#64748b',
       tagBg: 'bg-slate-100',
       buttons: [
-        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
-        { label: "Figma", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
-        { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?page-id=138:1498&node-id=710-73139&viewport=-9828,1631,0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710:73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
+        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> }
       ],
-      skills: ['UI/UX Design', 'Design System', 'Prototyping']
+      skills: ['Project Leadership', 'IA Definition', 'Usability Testing']
     }
   ];
 
@@ -696,7 +710,7 @@ const App = () => {
       label: 'Send Email',
       value: 'a199b5c20@gmail.com',
       icon: Mail,
-      desc: '點擊發送電子郵件至 a199b5c20@gmail.com，討論產品經理相關職務合作。',
+      desc: '點擊發送電子郵件至 a199b5c20@gmail.com，討論軟體專案管理相關職務合作。',
       color: '#FF8C42'
     },
     {
@@ -749,17 +763,17 @@ const App = () => {
           <div className="w-full md:w-[50%] flex flex-col items-start mt-8 md:mt-0">
             <div className="flex items-center gap-3 mb-5">
               <div className="h-[1px] w-10 bg-[#FF8C42]"></div>
-              <div className="text-[#FF8C42] font-black text-xs tracking-[0.3em] uppercase">Commercialization Product Manager</div>
+              <div className="text-[#FF8C42] font-black text-xs tracking-[0.3em] uppercase">Software Project Manager</div>
             </div>
             
             <MagneticHeadline mouse={mousePos} />
             
             <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-8 max-w-2xl text-[15px] md:text-base">
               <p>
-                你好，我是具備產品策略與歐美平台營運經驗的 PM。目前於 Reallusion 負責 ActorCore 與 Content Store 兩大素材電商之產品優化與商業化策略。我透過使用者行為分析，重構搜尋體驗與商城內容結構 (Theme/Tag)，並與歐美開發者協作，成功提升使用者的查找效率與平台轉換表現。
+                你好，我是具備產品策略與歐美平台營運經驗的「軟體專案經理」。目前於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。
               </p>
               <p>
-                過去我也擁有 0→1 XR 跨平台系統的建置經驗，擅長將使用者研究洞察轉化為具體規格。在技術限制與商業目標間精準決策，推動產品落地。此外，亦曾參與 Bus+ APP 產品介面優化，累積了扎實的 B2C 產品體驗優化能力。
+                過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。
               </p>
             </div>
 
@@ -784,7 +798,7 @@ const App = () => {
             </div>
           </div>
           <div className="w-full md:w-[50%] flex justify-center md:justify-end mt-4 md:mt-0">
-            <ProfilePhoto mouse={mousePos} />
+            <ProfilePhoto isMobile={isMobile} mouse={mousePos} />
           </div>
         </div>
       </section>
@@ -808,7 +822,7 @@ const App = () => {
                   <span className="text-xs font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">2024.10 - Present</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  商品化經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">Commercialization Product Manager</span>
+                  軟體專案經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">Software Project Manager</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -844,7 +858,7 @@ const App = () => {
                   <span className="text-xs font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100 w-fit">2023.05 - 2024.10</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  產品設計師 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Product Designer & Project Exec.</span>
+                  軟體專案經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Software Project Manager</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -1089,7 +1103,7 @@ const App = () => {
           </div>
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 JEN-HAO ZHENG · PM PORTFOLIO V12.3
+            © 2026 JEN-HAO ZHENG · SOFTWARE PM PORTFOLIO V13.1
           </div>
         </div>
       </footer>
