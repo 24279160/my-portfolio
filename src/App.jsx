@@ -848,7 +848,7 @@ const App = () => {
             
             <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-8 max-w-2xl text-[15px] md:text-base">
               <p>
-                你好，我是具備產品策略與歐美平台營運經驗的「軟體專案經理」。目前於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。
+                你好，我是具備產品策略與歐美平台營運經驗的軟體專案經理。曾於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。
               </p>
               <p>
                 過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。
@@ -936,7 +936,7 @@ const App = () => {
                   <span className="text-xs font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100 w-fit">2023.05 - 2024.10</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  軟體專案經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Software Project Manager</span>
+                  產品設計師 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase"> Product Designer</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
