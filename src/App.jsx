@@ -1266,7 +1266,7 @@ const App = () => {
         <div className="max-w-[1200px] mx-auto">
           
           <div className="flex items-center gap-6 mb-16 text-left">
-            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Flagship Quests</h2>
+            <h2 className="text-3xl font-black uppercase tracking-tighter italic text-slate-900">Working Projects</h2>
             <div className="h-[1px] flex-grow bg-slate-100"></div>
           </div>
           
@@ -1475,7 +1475,7 @@ const App = () => {
           
           <div className="text-center mb-20">
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
-               <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
+               <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional skills</span>
             </div>
             <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊</h2>
             <p className="text-slate-400 font-medium text-center">期待與您的團隊攜手合作，共同創造產品價值。</p>
