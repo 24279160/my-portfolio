@@ -36,12 +36,11 @@ import {
 
 /**
  * ============================================================================
- * SOFTWARE PRODUCT MANAGER PORTFOLIO - REN HAO ZHENG (V20.6)
+ * SOFTWARE PRODUCT MANAGER PORTFOLIO - REN HAO ZHENG (V20.11)
  * ----------------------------------------------------------------------------
  * 更新日誌：
- * 1. 根據 UX 建議，將 ImageCarousel 的控制點 (Dots) 完全移出圖片容器外 (下方)。
- * 2. 徹底解決點擊被 Hover 動畫吞噬/干擾的問題，確保 100% 可點擊。
- * 3. 調整控制點在淺色背景下的高質感配色 (灰色 -> 品牌橘)。
+ * 1. 修正「全球動力科技」的工作職稱，從專案經理 (Project Manager) 改為產品設計師 (Product Designer)。
+ * 2. 同步更新下方「警署 XR 模擬訓練系統」專案卡片中的角色標示為 Product Designer。
  * ============================================================================
  */
 
@@ -257,17 +256,15 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
-// --- ★ 專案圖片輪播組件 (V20.6：控制點移至外部，防干擾機制) ---
+// --- 專案圖片輪播組件 ---
 const ImageCarousel = ({ images, isFlagship, highlightMetric }) => {
   const [index, setIndex] = useState(0);
 
   useEffect(() => {
     if (!images || images.length <= 1) return;
-    
     const timer = setInterval(() => {
       setIndex((prev) => (prev + 1) % images.length);
     }, 4000);
-    
     return () => clearInterval(timer);
   }, [images, index]);
 
@@ -275,10 +272,7 @@ const ImageCarousel = ({ images, isFlagship, highlightMetric }) => {
 
   return (
     <div className="w-full flex flex-col gap-5">
-      {/* 圖片展示主體 (懸浮互動保留於此容器內) */}
       <div className={`w-full rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative bg-slate-100 ${isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
-        
-        {/* 這裡統一管理 Hover 的縮放，不會因為換圖而重置 */}
         <motion.div whileHover={{ scale: 1.15, rotate: -1.5 }} transition={{ duration: 1.2, ease: "easeOut" }} className="w-full h-full relative origin-center">
           <AnimatePresence>
             <motion.img
@@ -292,8 +286,6 @@ const ImageCarousel = ({ images, isFlagship, highlightMetric }) => {
             />
           </AnimatePresence>
         </motion.div>
-
-        {/* 業務指標 */}
         <motion.div 
           initial={{ opacity: 0, y: 15 }}
           whileInView={{ opacity: 1, y: 0 }}
@@ -309,8 +301,6 @@ const ImageCarousel = ({ images, isFlagship, highlightMetric }) => {
           </div>
         </motion.div>
       </div>
-      
-      {/* 底部進度指示器 Dots - 放置於圖片外側，絕對安全不干擾 */}
       <div className="flex justify-center items-center gap-2.5 w-full h-3 relative z-40 pointer-events-auto">
         {images.map((_, idx) => (
           <button 
@@ -428,14 +418,13 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
 };
 
 // --- ActorCore 雙生模組化整合卡片 ---
-const CombinedProjectCard = ({ project }) => {
+const CombinedProjectCard = ({ project, isEn }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeData = project.subProjects[activeIndex];
 
   return (
     <TiltCard className="bg-white p-8 md:p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default rounded-[4rem]">
       
-      {/* 圖片區塊 */}
       <div className="w-full md:w-[48%] flex flex-col shrink-0 relative z-30 pointer-events-auto">
         <div className="w-full rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative aspect-[4/3] bg-slate-100">
           <motion.div whileHover={{ scale: 1.15, rotate: -1.5 }} transition={{ duration: 1.2, ease: "easeOut" }} className="w-full h-full relative origin-center">
@@ -471,10 +460,7 @@ const CombinedProjectCard = ({ project }) => {
         </div>
       </div>
       
-      {/* 內容區塊 */}
       <div className="flex-grow flex flex-col h-full py-2 relative z-20 w-full">
-        
-        {/* 頂部：標籤與切換按鈕 */}
         <div className="flex flex-col md:flex-row md:items-center justify-between mb-4 gap-4">
           <div className="flex items-center gap-3 text-left">
             <div className="w-8 h-[2px] transition-all duration-500 bg-[#FF8C42]"></div>
@@ -485,7 +471,6 @@ const CombinedProjectCard = ({ project }) => {
             </span>
           </div>
 
-          {/* 切換 Tab (模塊右側 Button) */}
           <div className="flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-full shadow-inner border border-slate-200/50 w-fit">
             {project.subProjects.map((sub, idx) => (
               <button
@@ -506,7 +491,6 @@ const CombinedProjectCard = ({ project }) => {
           </div>
         </div>
 
-        {/* 動態內容切換 */}
         <AnimatePresence mode="wait">
           <motion.div 
             key={activeData.id} 
@@ -789,17 +773,17 @@ const ProfileDodgeTag = ({ tag, idx, isMobile }) => {
 };
 
 // --- 頭像組件 ---
-const ProfilePhoto = ({ isMobile }) => {
+const ProfilePhoto = ({ isMobile, isEn }) => {
   const [isHovered, setIsHovered] = useState(false);
   const avatarUrl = "https://lh3.googleusercontent.com/d/1TsRwo9QiibKwW7PNCBnhPbbizfDXVaH9";
 
   const floatTags = [
-    { text: "產品策略規劃", top: "-10%", left: "0%", delay: 0.1 },        
-    { text: "數位內容營運", top: "10%", right: "-20%", delay: 0.2 },
-    { text: "專案協同管理", bottom: "10%", left: "-5%", delay: 0.3 },      
-    { text: "UIUX 體驗設計", bottom: "-10%", right: "-12%", delay: 0.4 },
-    { text: "SEO 與數據分析", top: "45%", left: "-8%", delay: 0.5 },       
-    { text: "Package 商業策略", bottom: "40%", right: "-28%", delay: 0.6 },
+    { text: isEn ? "Product Strategy" : "產品策略規劃", top: "-10%", left: "0%", delay: 0.1 },        
+    { text: isEn ? "Content Ops" : "數位內容營運", top: "10%", right: "-20%", delay: 0.2 },
+    { text: isEn ? "Project Mgmt" : "專案協同管理", bottom: "10%", left: "-5%", delay: 0.3 },      
+    { text: isEn ? "UI/UX Design" : "UIUX 體驗設計", bottom: "-10%", right: "-12%", delay: 0.4 },
+    { text: isEn ? "SEO & Data" : "SEO 與數據分析", top: "45%", left: "-8%", delay: 0.5 },       
+    { text: isEn ? "Package Strategy" : "Package 商業策略", bottom: "40%", right: "-28%", delay: 0.6 },
     { text: "Vibe Coding", top: "25%", left: "-10%", delay: 0.7 }
   ];
 
@@ -835,6 +819,9 @@ const App = () => {
   const [hoveredContact, setHoveredContact] = useState(null);
   const [hoveredSkill, setHoveredSkill] = useState(null);
   
+  // ★ i18n 雙語狀態
+  const [isEn, setIsEn] = useState(false);
+  
   useEffect(() => {
     const shareImageUrl = "https://lh3.googleusercontent.com/d/1EMGkWw1l7WfzJJ8bp7jx2oXG9P-FrR0i";
     document.title = "Ren Hao Zheng | Software Product Manager Portfolio";
@@ -864,87 +851,97 @@ const App = () => {
     return () => window.removeEventListener('mousemove', handleMouseMove);
   }, [isMobile]);
 
+  // --- 資料模型 (雙語整合) ---
   const impactMetrics = [
-    { label: "Search Success", value: "+20%", icon: Zap, desc: "重構搜尋邏輯與 IA，提升搜尋匹配效率。" },
-    { label: "Operational Growth", value: "+10-25%", icon: TrendingUp, desc: "規劃核心營運模組，提升內容發現與轉換。" },
-    { label: "System Delivery", value: "$40M", icon: Cpu, desc: "主導大型政府 XR 專案落地，管理開發與驗收。" }
+    { label: "Search Success", value: "+20%", icon: Zap, desc: isEn ? "Redesigned search logic and IA to boost matching efficiency." : "重構搜尋邏輯與 IA，提升搜尋匹配效率。" },
+    { label: "Operational Growth", value: "+10-25%", icon: TrendingUp, desc: isEn ? "Planned core operation modules to improve content discovery." : "規劃核心營運模組，提升內容發現與轉換。" },
+    { label: "System Delivery", value: "$40M", icon: Cpu, desc: isEn ? "Led large-scale government XR projects from dev to delivery." : "主導大型政府 XR 專案落地，管理開發與驗收。" }
   ];
 
   const reallusionBullets = [
-    { icon: <Target size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "商業策略", text: <>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
-    { icon: <Search size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "體驗重構", text: <>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
-    { icon: <Globe2 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "架構優化", text: <>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
-    { icon: <Package size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "定價包裝", text: <>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
-    { icon: <BarChart3 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "營運增長", text: <>設計營運模組 (Promotion / Offer Page)，支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
-    { icon: <Users size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: "跨國協作", text: <>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
+    { icon: <Target size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "Strategy" : "商業策略", text: isEn ? <>Managed product strategy and commercialization for global e-commerce platforms (ActorCore / Content Store).</> : <>負責歐美電商平台 (ActorCore / Content Store) 之產品策略與商業化規劃，涵蓋搜尋體驗優化、資訊架構設計與內容轉換流程。</> },
+    { icon: <Search size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "UX Redesign" : "體驗重構", text: isEn ? <>Analyzed long-tail search behavior to define Deep Search specs. Increased success rate by <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> and reduced friction.</> : <>分析使用者長尾搜尋行為，定義 Deep Search 產品規格。提升搜尋成功率 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">20%</span> 並降低搜尋摩擦。</> },
+    { icon: <Globe2 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "Architecture" : "架構優化", text: isEn ? <>Optimized core features (search, categories, recommendations), boosting content discovery efficiency by <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>.</> : <>規劃平台核心功能（搜尋、分類、推薦），提升內容可發現性與使用效率約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">15–25%</span>。</> },
+    { icon: <Package size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "Packaging" : "定價包裝", text: isEn ? <>Built commercial strategies (Theme / Bundle / Motions) to optimize product structure and the conversion funnel.</> : <>建立商品化策略（Theme / Bundle / Motion 組合），優化產品結構與轉換流程。</> },
+    { icon: <BarChart3 size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "Growth" : "營運增長", text: isEn ? <>Designed promotion modules (Theme Special) to support marketing campaigns, lifting CTR by <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>.</> : <>設計營運模組 (Promotion / Offer Page)，支援行銷活動與流量轉換 (CTR 提升約 <span className="font-black text-slate-900 border-b-[2px] border-orange-200">10–15%</span>)。</> },
+    { icon: <Users size={18} strokeWidth={2.2} className="text-[#FF8C42]" />, tag: isEn ? "Global Collab" : "跨國協作", text: isEn ? <>Collaborated with global teams (content, sales, marketing) to drive product launches and market strategies.</> : <>與海外團隊（內容製作 / 業務 / 行銷）協作，推動產品落地與全球市場策略。</> }
   ];
 
   const globalPowerBullets = [
-    { icon: <Monitor size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "0到1開發", text: <>參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。</> },
-    { icon: <LayoutTemplate size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "多端架構", text: <>規劃多端產品架構，設計完整使用流程與互動機制。</> },
-    { icon: <ClipboardList size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "規格撰寫", text: <>撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。</> },
-    { icon: <ShieldCheck size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "專案交付", text: <>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
+    { icon: <Monitor size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: isEn ? "0-1 Dev" : "0到1開發", text: isEn ? <>Planned XR simulation training systems (Web / Tablet / VR), driving product development from 0 to 1.</> : <>參與 XR 模擬訓練系統（Web / Tablet / VR）之產品規劃與設計，推動產品從 0→1 開發與落地。</> },
+    { icon: <LayoutTemplate size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "Multi-Platform", text: isEn ? <>Designed multi-device product architecture, mapping out complete user flows and interactions.</> : <>規劃多端產品架構，設計完整使用流程與互動機制。</> },
+    { icon: <ClipboardList size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: isEn ? "Specs (PRD)" : "規格撰寫", text: isEn ? <>Wrote detailed product specs (PRD / Flow / IA) to ensure cross-department alignment.</> : <>撰寫產品規格 (Spec / Flow / IA)，確保跨部門開發一致性。</> },
+    { icon: <ShieldCheck size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: isEn ? "Delivery" : "專案交付", text: isEn ? <>Managed government execution, leading a <span className="font-black text-slate-900 border-b-[2px] border-teal-200">$40M</span> project to meet real-world scenarios and strict acceptance criteria.</> : <>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
   ];
 
-  // ★ 核心專案區塊
   const projects = [
     {
       isCombined: true,
-      tagLabel: 'ACTORCORE PROJECT',
+      tagLabel: 'REALLUSION PROJECT',
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
       subProjects: [
         {
           id: 'actorcore-deep-search',
-          title: 'Deep Search：意圖導向的搜尋體驗重構',
-          tabLabel: 'Deep Search 搜尋重構',
-          role: 'Content PM',
-          problem: '發現平台既有的「關鍵字比對」無法處理用戶「描述句查找」的真實意圖，導致搜尋挫折感高、用戶查找成本大，流失潛在轉換。',
-          solution: '主導自然語言搜尋 (Deep Search) 專案。分析使用者行為以重定義搜尋邏輯，與前後端團隊密切協作，重構從「搜尋建議」到「結果排序」的完整發現流程。',
-          results: [
+          title: isEn ? 'Deep Search: Intent-Driven Search UX Redesign' : 'Deep Search：意圖導向的搜尋體驗重構',
+          tabLabel: isEn ? 'Deep Search UX' : 'Deep Search 搜尋重構',
+          role: 'Project Manager',
+          problem: isEn ? 'Existing "keyword matching" failed to handle natural descriptive queries, causing high user frustration, high search costs, and lost conversions.' : '發現平台既有的「關鍵字比對」無法處理用戶「描述句查找」的真實意圖，導致搜尋挫折感高、用戶查找成本大，流失潛在轉換。',
+          solution: isEn ? 'Led the Deep Search project. Analyzed user behavior to redefine logic, collaborating closely with developers to rebuild the entire discovery flow from suggestions to ranking.' : '主導自然語言搜尋 (Deep Search) 專案。分析使用者行為以重定義搜尋邏輯，與前後端團隊密切協作，重構從「搜尋建議」到「結果排序」的完整發現流程。',
+          results: isEn ? [
+            'Search success rate increased by ~20%, significantly lowering decision costs.',
+            'Optimized store recommendations, boosting CTR by ~20%.'
+          ] : [
             '搜尋成功率顯著提升約 20%，大幅降低使用者決策成本。',
             '優化商城推薦內容結構，點擊率 (CTR) 提升約 20%。'
           ],
           img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7",
           icon: Search,
-          pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
+          pmDeliverables: isEn ? ['Product Strategy', 'Data Analysis', 'Cross-team', 'Operations'] : ['產品策略', '數據分析', '跨部門協作', '營運優化'],
           highlightMetric: '+20% Success',
           buttons: [
-            { label: "查看商城", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
-            { label: "Deep Search 展示影片", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
+            { label: isEn ? "Visit Store" : "查看商城", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> },
+            { label: isEn ? "Deep Search Video" : "Deep Search 展示影片", url: "https://youtu.be/AM50tAZAT8s", icon: <Play size={14} fill="currentColor" /> }
           ]
         },
         {
           id: 'actorcore-module',
-          title: '首頁營運模組化與轉換優化策略',
-          tabLabel: 'Theme 營運模組化',
+          title: isEn ? 'Homepage Modularization & Conversion Optimization' : '首頁營運模組化與轉換優化策略',
+          tabLabel: isEn ? 'Theme Modularization' : 'Theme 營運模組化',
           role: 'Content PM',
-          problem: '平台內容原先偏向單純的「素材陳列」，缺乏明確的主題分類導流，難以有效承接行銷活動與商業目標。',
-          solution: '建立 Theme Special 營運模組，將單一素材包裝為「主題化解決方案」。規劃五大優惠分類，建立可快速替換的活動版型，打通從曝光到結帳的轉換漏斗。',
-          results: [
+          problem: isEn ? 'Content was merely "displayed" without thematic guidance, making it difficult to support marketing campaigns and business goals effectively.' : '平台內容原先偏向單純的「素材陳列」，缺乏明確的主題分類導流，難以有效承接行銷活動與商業目標。',
+          solution: isEn ? 'Built the "Theme Special" module to package single assets into solutions. Designed 5 promo categories and flexible templates to clear the conversion funnel.' : '建立 Theme Special 營運模組，將單一素材包裝為「主題化解決方案」。規劃五大優惠分類，建立可快速替換的活動版型，打通從曝光到結帳的轉換漏斗。',
+          results: isEn ? [
+            'Page conversion rate (CVR) increased by 10-15%, enhancing marketing flexibility.',
+            'Established multiple thematic product lines, clarifying the product structure.'
+          ] : [
             '促銷頁面轉換率 (Conversion Rate) 成功提升約 10-15%，增強行銷團隊營運彈性。',
-            '建立多個主題商品線，大幅提升產品結構清晰度。'
+            '建立多個主題商品線 (BMX / Gorilla 等)，大幅提升產品結構清晰度。'
           ],
           img: "https://lh3.googleusercontent.com/d/1kSLZMTtsJ7_8KpGYdkoy8LOXVNkDM_j9",
           icon: Package,
-          pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
+          pmDeliverables: isEn ? ['Product Strategy', 'Data Analysis', 'Cross-team', 'Operations'] : ['產品策略', '數據分析', '跨部門協作', '營運優化'],
           highlightMetric: '+15% CVR',
           buttons: [
-            { label: "查看商城", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
+            { label: isEn ? "Visit Store" : "查看商城", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
           ]
         }
       ]
     },
     {
       id: 'superhero',
-      title: 'Content Store 商品化策略',
+      title: isEn ? 'Content Store Commercialization Strategy' : 'Content Store 商品化策略',
       role: 'Project Manager / Content PM',
-      problem: '商城需要具備高商業價值的旗艦型內容產品，以提升整體客單價，並建立品牌的技術護城河。',
-      solution: '識別「高品質風格化動作」的市場缺口，主導開發規格與專案標準化流程 (SOP)。透過精準的內容包裝與跨部門協作，將設計力轉化為實質的商品化策略。',
-      results: [
+      problem: isEn ? 'The store needed high-value flagship content to increase Average Order Value (AOV) and build a brand technical moat.' : '商城需要具備高商業價值的旗艦型內容產品，以提升整體客單價，並建立品牌的技術護城河。',
+      solution: isEn ? 'Identified a market gap for "high-quality stylized motions". Led spec development and SOPs. Turned design capabilities into a solid commercial strategy.' : '識別「高品質風格化動作」的市場缺口，主導開發規格與專案標準化流程 (SOP)。透過精準的內容包裝與跨部門協作，將設計力轉化為實質的商品化策略。',
+      results: isEn ? [
+        'Successfully led the product line to stay in the top 3 store sales charts, creating long-tail revenue.',
+        'Reduced user content comprehension time (estimated 20%).',
+        'Increased product page conversion rate (approx. 10-15%).'
+      ] : [
         '成功帶動該系列商品蟬聯商城銷售排行榜前三名，創造長尾營收。',
         '使用者內容理解時間下降（估算 20%）。',
-        '商品頁轉換率提升（約 10–15%）',
+        '商品頁轉換率提升（約 10–15%）。'
       ],
       images: [
         "https://lh3.googleusercontent.com/d/1g_rcviph46Hh_fzLNZRv5MAFI-NtjbIF",
@@ -954,61 +951,64 @@ const App = () => {
       ],
       icon: Target,
       isFlagship: false,
-      pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
+      pmDeliverables: isEn ? ['Product Strategy', 'Data Analysis', 'Cross-team', 'Operations'] : ['產品策略', '數據分析', '跨部門協作', '營運優化'],
       highlightMetric: 'Top 3 Sales',
       tagLabel: 'CONTENT LINE PROJECT',
       tagColor: '#2dd4bf',
       tagBg: 'bg-teal-50',
       buttons: [
-        { label: "查看商城", url: "https://www.reallusion.com/contentstore/featured/superhero-motion", icon: <ArrowRight size={14} /> }
+        { label: isEn ? "Product Page" : "產品展示", url: "https://www.reallusion.com/contentstore/featured/superhero-motion", icon: <ArrowRight size={14} /> }
       ]
     },
     {
       id: 'police-xr',
-      title: '警署 XR 模擬訓練系統 (0→1)',
-      role: 'Project Manager / Product Designer',
-      problem: '傳統缺乏高還原度的實境場景，且政府標案需求複雜，需在嚴格時程與技術限制下產出高擬真系統。',
-      solution: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收細節。',
-      results: [
-        '完成 4,000 萬標案驗收，成功導入全台教學體系。',
-        '建立可擴展 XR 訓練產品架構（支援多場景應用）',
+      title: isEn ? 'Police XR Simulation Training (0→1)' : '警署 XR 模擬訓練系統 (0→1)',
+      role: 'Product Designer',
+      problem: isEn ? 'Traditional training lacked high-fidelity realism. Complex government requirements needed a highly immersive system under strict deadlines.' : '傳統缺乏高還原度的實境場景，且政府標案需求複雜，需在嚴格時程與技術限制下產出高擬真系統。',
+      solution: isEn ? 'Managed a $40M project. Collaborated with Asian stunt teams to record high-standard motions, creating immersive details for final validation.' : '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收細節。',
+      results: isEn ? [
+        'Successfully delivered the $40M project, integrating it into the national training system.'
+      ] : [
+        '完成 4,000 萬標案驗收，成功導入全台教學體系。'
       ],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
       isFlagship: false,
-      pmDeliverables: ['專案管理', '跨部門協作', '營運優化'],
+      pmDeliverables: isEn ? ['Project Mgmt', 'Cross-team', 'Operations'] : ['專案管理', '跨部門協作', '營運優化'],
       highlightMetric: '$40M Delivered',
       tagLabel: 'GLOBAL POWER PROJECT',
       tagColor: '#64748b',
       tagBg: 'bg-slate-100',
       buttons: [
-        { label: "新聞報導實錄", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> },
-        { label: "KOL 實機展示", url: "https://youtu.be/o4sykcmklbo?t=2006", icon: <Play size={14} fill="currentColor" /> }
+        { label: isEn ? "News Coverage" : "新聞報導實錄", url: "https://youtu.be/VFtLeFSkq-Y", icon: <Play size={14} fill="currentColor" /> },
+        { label: isEn ? "Live Demo" : "KOL 實機展示", url: "https://youtu.be/o4sykcmklbo?t=2006", icon: <Play size={14} fill="currentColor" /> }
       ]
     },
     {
       id: 'bus-plus',
-      title: 'Bus+ APP 介面重構與優化',
+      title: isEn ? 'Bus+ APP UI/UX Redesign' : 'Bus+ APP 介面重構與優化',
       role: 'UI/UX Designer',
-      problem: '原 APP 介面缺乏一致性的設計規範，且部分操作流程對使用者不夠直覺，導致學習成本較高。',
-      solution: '獨立完成 Design System 建置與 Prototype 製作，以服務設計思維驅動迭代，重新梳理核心使用流程。',
-      results: [
+      problem: isEn ? 'The original APP lacked consistent design guidelines and had non-intuitive flows, causing a steep learning curve.' : '原 APP 介面缺乏一致性的設計規範，且部分操作流程對使用者不夠直覺，導致學習成本較高。',
+      solution: isEn ? 'Independently built a Design System and Prototypes. Used service design thinking to iterate and streamline core user flows.' : '獨立完成 Design System 建置與 Prototype 製作，以服務設計思維驅動迭代，重新梳理核心使用流程。',
+      results: isEn ? [
+        'Target audience satisfaction exceeded 80%.',
+        'Created scalable UI components, significantly boosting future dev efficiency.'
+      ] : [
         '目標受眾滿意度突破 80%。',
-        '建立可擴充的 UI 元件化規範，大幅提升後續開發效率。',
-        '使用流程簡化（降低查詢步驟）。',
+        '建立可擴充的 UI 元件化規範，大幅提升後續開發效率。'
       ],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P",
       icon: LayoutTemplate,
       isFlagship: false,
-      pmDeliverables: ['體驗設計', '資訊架構', '流程優化'],
+      pmDeliverables: isEn ? ['UX Design', 'Info Architecture', 'Flow Optimization'] : ['體驗設計', '資訊架構', '流程優化'],
       highlightMetric: '>80% Satisfaction',
       tagLabel: 'CO-OP SIDE PROJECT',
       tagColor: '#94a3b8',
       tagBg: 'bg-slate-100',
       buttons: [
-        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
+        { label: isEn ? "Intro" : "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
         { label: "Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
-        { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?page-id=138%3A1498&node-id=710-73139&viewport=-9828%2C1631%2C0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710%3A73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
+        { label: isEn ? "Prototype" : "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?page-id=138%3A1498&node-id=710-73139&viewport=-9828%2C1631%2C0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710%3A73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
       ]
     }
   ];
@@ -1016,71 +1016,86 @@ const App = () => {
   const skillsData = [
     {
       id: 'strategy',
-      title: '產品策略與商業化規劃',
+      title: isEn ? 'Product Strategy & Commercialization' : '產品策略與商業化規劃',
       icon: Target,
       color: '#FF8C42',
-      bullets: [
+      bullets: isEn ? [
+        'Analyzed user intent to drive search UX and content structure redesign.',
+        'Wrote comprehensive PRDs and worked with devs to ensure smooth delivery.',
+        'Planned digital content commercialization to design high-converting flows.',
+        'Executed data analysis and SEO optimization to drive organic growth.'
+      ] : [
         '分析使用者意圖，主導搜尋體驗與內容結構重構。',
         '撰寫產品需求文件 (PRD)，與開發團隊共同推進落地。',
         '規劃數位內容商品化策略，設計高轉換導購流程。',
         '執行數據分析與 SEO 優化，驅動平台自然流量成長。'
       ],
-      tags: ['#產品策略', '#數據分析', '#搜尋優化', '#商業化', '#PRD撰寫']
+      tags: isEn ? ['#ProductStrategy', '#DataAnalysis', '#SearchOpt', '#Commercialization', '#PRD'] : ['#產品策略', '#數據分析', '#搜尋優化', '#商業化', '#PRD撰寫']
     },
     {
       id: 'management',
-      title: '專案管理與技術轉譯',
+      title: isEn ? 'Project Management & Tech Translation' : '專案管理與技術轉譯',
       icon: Users,
       color: '#2dd4bf',
-      bullets: [
+      bullets: isEn ? [
+        'Bridged the cognitive gap between business and dev teams through tech translation.',
+        'Managed timelines and execution for $40M large-scale government projects.',
+        'Coordinated cross-functional resources (design, dev, ops) for high-quality delivery.',
+        'Balanced stakeholder needs and defined precise development priorities.'
+      ] : [
         '具備技術轉譯能力，縮小業務與開發間的認知偏差。',
         '主導大型政府標案進度，管理 4,000 萬級專案時程。',
         '協調跨部門資源 (設計、工程、營運)，確保專案高品質交付。',
         '平衡多方 Stakeholders 需求，制定精準開發優先順序。'
       ],
-      tags: ['#專案管理', '#技術轉譯', '#資源協調', '#時程控管', '#標案管理']
+      tags: isEn ? ['#ProjectMgmt', '#TechTranslation', '#ResourceCoordination', '#TimelineControl'] : ['#專案管理', '#技術轉譯', '#資源協調', '#時程控管', '#標案管理']
     },
     {
       id: 'design',
-      title: '體驗思維與流程優化',
+      title: isEn ? 'UX Thinking & Flow Optimization' : '體驗思維與流程優化',
       icon: LayoutTemplate,
       color: '#64748b', 
-      bullets: [
+      bullets: isEn ? [
+        'Mapped out User Flows and Information Architecture (IA) with service design thinking.',
+        'Optimized UI/UX to improve user operational efficiency and retention.',
+        'Conduct usability testing and continuously iterate based on data insights.',
+        'Proficient in Figma for product design and cross-department visual communication.'
+      ] : [
         '以服務設計思維規劃 User Flow 與 IA 資訊架構。',
         '優化產品 UI/UX，提升使用者操作效率與留存率。',
         '執行易用性測試 (Usability Testing)，根據數據持續迭代。',
         '熟悉 Figma 等工具，支援產品設計與跨部門視覺溝通。'
       ],
-      tags: ['#體驗設計', '#資訊架構', '#流程優化', '#Figma', '#設計系統']
+      tags: isEn ? ['#UXDesign', '#InfoArchitecture', '#FlowOptimization', '#Figma', '#DesignSystem'] : ['#體驗設計', '#資訊架構', '#流程優化', '#Figma', '#設計系統']
     }
   ];
 
   const contactOptions = [
     {
       id: 'mail',
-      title: 'Email 聯絡',
+      title: isEn ? 'Email Contact' : 'Email 聯絡',
       label: 'Send Email',
       value: 'a199b5c20@gmail.com',
       icon: Mail,
-      desc: '點擊發送電子郵件至 a199b5c20@gmail.com，討論軟體專案管理相關職務合作。',
+      desc: isEn ? 'Click to send an email to discuss software PM opportunities.' : '點擊發送電子郵件至 a199b5c20@gmail.com，討論軟體專案管理相關職務合作。',
       color: '#FF8C42'
     },
     {
       id: 'phone',
-      title: '電話聯繫',
+      title: isEn ? 'Call Now' : '電話聯繫',
       label: 'Call Now',
       value: '0903832322',
       icon: Phone,
-      desc: '直接撥打 0903-832-322 與我聯繫，進行更即時的溝通與對齊。',
+      desc: isEn ? 'Call directly for immediate communication and alignment.' : '直接撥打 0903-832-322 與我聯繫，進行更即時的溝通與對齊。',
       color: '#2dd4bf'
     },
     {
       id: 'download',
-      title: '個人檔案',
-      label: '下載CV',
+      title: isEn ? 'Resume' : '個人檔案',
+      label: isEn ? 'Download CV' : '下載CV',
       value: 'https://drive.google.com/drive/folders/1msoTXlaDAHxeuLLGlMHz4HpXpikqDt3M?usp=drive_link',
       icon: Download,
-      desc: '下載我的完整履歷與過往專案詳細文件，了解更多專業實戰細節。',
+      desc: isEn ? 'Download my full resume and project details for more insights.' : '下載我的完整履歷與過往專案詳細文件，了解更多專業實戰細節。',
       color: '#64748b' 
     }
   ];
@@ -1100,23 +1115,46 @@ const App = () => {
       {!isMobile && <NeuralMeshBackground mouse={mousePos} />}
       
       {/* 導覽列 */}
-      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-8 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
+      <nav className="fixed w-full bg-white/70 backdrop-blur-xl z-[100] py-4 px-6 md:px-12 flex justify-between items-center border-b border-gray-100 shadow-sm mt-1.5">
         <div 
-          className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto group" 
+          className="text-xl font-black tracking-tighter cursor-pointer flex items-center gap-2 pointer-events-auto group shrink-0" 
           onClick={() => window.scrollTo({top: 0, behavior: 'smooth'})}
         >
-          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md transition-transform duration-300 group-hover:scale-110">
+          <div className="w-8 h-8 bg-[#FF8C42] rounded-lg flex items-center justify-center text-white font-black text-xs shadow-md transition-transform duration-300 group-hover:scale-110 shrink-0">
             RH
           </div>
-          <span className="font-bold uppercase tracking-widest text-sm text-slate-900 transition-all duration-300 group-hover:tracking-[0.2em] group-hover:text-[#FF8C42]">
+          <span className="font-bold uppercase tracking-widest text-sm text-slate-900 transition-all duration-300 group-hover:tracking-[0.2em] group-hover:text-[#FF8C42] hidden sm:block">
             REN <span className="text-slate-600 group-hover:text-[#FF8C42]">HAO</span>
           </span>
         </div>
-        <div className="hidden md:flex space-x-10 font-bold text-xs tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
-          <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
-          <button onClick={() => scrollTo('projects')} className="hover:text-[#FF8C42] transition-colors">PROJECTS</button>
-          <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">SKILLS</button>
-          <button onClick={() => scrollTo('about')} className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-xs font-black tracking-widest">CONTACT ME</button>
+        
+        <div className="flex items-center gap-4">
+          {/* 手機版語言切換按鈕 (只在 md 以下顯示) */}
+          <button 
+            onClick={() => setIsEn(!isEn)}
+            className="md:hidden flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-orange-50 hover:border-orange-200 hover:text-[#FF8C42] transition-all text-[11px] font-black tracking-widest text-slate-600 pointer-events-auto shadow-sm"
+          >
+            <Globe2 size={13} />
+            {isEn ? '中文' : 'EN'}
+          </button>
+
+          {/* 桌面版選單 */}
+          <div className="hidden md:flex space-x-8 lg:space-x-10 font-bold text-xs tracking-widest uppercase items-center text-slate-500 pointer-events-auto">
+            <button onClick={() => scrollTo('experience')} className="hover:text-[#FF8C42] transition-colors">EXPERIENCE</button>
+            <button onClick={() => scrollTo('projects')} className="hover:text-[#FF8C42] transition-colors">PROJECTS</button>
+            <button onClick={() => scrollTo('expertise')} className="hover:text-[#FF8C42] transition-colors">SKILLS</button>
+            <button onClick={() => scrollTo('about')} className="border border-slate-200 text-slate-800 px-6 py-2 rounded-full hover:border-[#FF8C42] hover:text-[#FF8C42] transition-all text-xs font-black tracking-widest">CONTACT ME</button>
+            
+            {/* 桌面版語言切換按鈕 */}
+            <div className="h-4 w-px bg-slate-200"></div>
+            <button 
+              onClick={() => setIsEn(!isEn)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full border border-slate-200 bg-slate-50 hover:bg-orange-50 hover:border-orange-200 hover:text-[#FF8C42] transition-all text-xs font-black tracking-widest text-slate-600 shadow-sm"
+            >
+              <Globe2 size={14} />
+              {isEn ? '切換中文' : 'ENGLISH'}
+            </button>
+          </div>
         </div>
       </nav>
 
@@ -1127,14 +1165,19 @@ const App = () => {
           <div className="w-full md:w-[50%] flex flex-col items-start mt-8 md:mt-0">
             <div className="flex items-center gap-3 mb-5">
               <div className="h-[1px] w-10 bg-[#FF8C42]"></div>
-              <div className="text-[#FF8C42] font-black text-xs tracking-[0.3em] uppercase">Content PM | 資源整合與策略型 PM</div>
+              <div className="text-[#FF8C42] font-black text-xs tracking-[0.3em] uppercase">
+                {isEn ? 'Content PM | Resource Integration & Strategy' : 'Content PM | 資源整合與策略型 PM'}
+              </div>
             </div>
             
             <MagneticHeadline mouse={mousePos} />
             
             <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-8 max-w-2xl text-[15px] md:text-base">
               <p>
-                你好，我是具備產品策略與歐美平台營運經驗的軟體專案經理。曾於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。 過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。
+                {isEn 
+                  ? 'Hello! I am a Software Project Manager experienced in product strategy and global platform operations. At Reallusion, I managed product optimization and commercialization for two major digital asset e-commerce platforms. I specialize in leveraging data analysis to redesign search experiences, collaborating closely with global development teams to ensure high-quality delivery. Previously, I built a 0-to-1 cross-platform XR system and led large-scale government projects. I excel at making precise decisions between technical constraints and business goals. Having also led the UX optimization for the Bus+ App, I bring strong cross-functional management skills and deep UI/UX research capabilities.'
+                  : '你好，我是具備產品策略與歐美平台營運經驗的軟體專案經理。曾於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。 過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。'
+                }
               </p>
             </div>
 
@@ -1143,7 +1186,7 @@ const App = () => {
                 onClick={() => scrollTo('experience')} 
                 className="bg-gradient-to-r from-[#FF8C42] to-orange-400 text-white px-8 py-3.5 rounded-full font-black text-sm tracking-widest shadow-[0_8px_20px_rgba(255,140,66,0.3)] hover:shadow-[0_12px_25px_rgba(255,140,66,0.4)] hover:-translate-y-1 transition-all flex items-center gap-2"
               >
-                深入了解我 <ArrowDown size={16} />
+                {isEn ? 'Discover More' : '深入了解我'} <ArrowDown size={16} />
               </button>
             </div>
             
@@ -1160,7 +1203,7 @@ const App = () => {
           </div>
           
           <div className="w-full md:w-[50%] flex justify-center md:justify-end mt-4 md:mt-0">
-            <ProfilePhoto isMobile={isMobile} />
+            <ProfilePhoto isMobile={isMobile} isEn={isEn} />
           </div>
 
         </div>
@@ -1187,12 +1230,14 @@ const App = () => {
                       <Building2 size={16} />
                       <span className="text-xs tracking-widest uppercase">Global E-commerce & SaaS</span>
                     </div>
-                    <h3 className="text-2xl font-black text-slate-900">甲尚科技 <span className="text-[#FF8C42] text-lg font-bold italic ml-2">Reallusion</span></h3>
+                    <h3 className="text-2xl font-black text-slate-900">
+                      {isEn ? 'Reallusion' : '甲尚科技'} <span className="text-[#FF8C42] text-lg font-bold italic ml-2">{isEn ? 'Taipei' : 'Reallusion'}</span>
+                    </h3>
                   </div>
                   <span className="text-xs font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">2024.10 - Present</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  軟體產品經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">Content Product Manager</span>
+                  {isEn ? 'Content Product Manager' : '軟體產品經理'} <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">{isEn ? 'Platform Strategy' : 'Content Product Manager'}</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -1227,12 +1272,14 @@ const App = () => {
                       <Building2 size={16} />
                       <span className="text-xs tracking-widest uppercase">B2B / B2G Integration</span>
                     </div>
-                    <h3 className="text-2xl font-black text-slate-900">全球動力科技 <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">Global Power</span></h3>
+                    <h3 className="text-2xl font-black text-slate-900">
+                      {isEn ? 'Global Power Tech' : '全球動力科技'} <span className="text-[#2dd4bf] text-lg font-bold italic ml-2">{isEn ? 'Taipei' : 'Global Power'}</span>
+                    </h3>
                   </div>
                   <span className="text-xs font-black text-[#2dd4bf] bg-teal-50 px-4 py-2 rounded-full border border-teal-100 w-fit">2023.05 - 2024.10</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  專案經理 <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">Project Manager</span>
+                  {isEn ? 'Product Designer' : '產品設計師'} <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-300 md:pl-3 tracking-widest uppercase">{isEn ? 'XR & System Integration' : 'Product Designer'}</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
@@ -1273,12 +1320,10 @@ const App = () => {
           <div className="space-y-16 pointer-events-auto">
             {projects.map((project, idx) => {
               
-              // 渲染：ActorCore 雙生切換模組
               if (project.isCombined) {
-                return <CombinedProjectCard key={idx} project={project} />;
+                return <CombinedProjectCard key={idx} project={project} isEn={isEn} />;
               }
 
-              // 一般專案卡片渲染
               return (
                 <TiltCard 
                   key={idx} 
@@ -1287,7 +1332,6 @@ const App = () => {
                   `}
                 >
                   
-                  {/* 專案媒體區塊 (支援輪播或單圖) */}
                   <div className="w-full md:w-[48%] flex flex-col gap-4 shrink-0 relative z-30 pointer-events-auto">
                     {project.images ? (
                       <ImageCarousel images={project.images} isFlagship={project.isFlagship} highlightMetric={project.highlightMetric} />
@@ -1316,7 +1360,6 @@ const App = () => {
                     )}
                   </div>
                   
-                  {/* 專案內容 */}
                   <div className="flex-grow flex flex-col h-full py-2 relative z-20">
                     <div className="flex items-center gap-3 mb-4 text-left">
                       <div className={`w-8 h-[2px] transition-all duration-500`} style={{ backgroundColor: project.tagColor || '#cbd5e1' }}></div>
@@ -1475,10 +1518,16 @@ const App = () => {
           
           <div className="text-center mb-20">
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
-               <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional skills</span>
+               <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊</h2>
-            <p className="text-slate-400 font-medium text-center">期待與您的團隊攜手合作，共同創造產品價值。</p>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">
+              {isEn ? 'Contact & Resources' : '聯絡資訊與資源'}
+            </h2>
+            <p className="text-slate-400 font-medium text-center">
+              {isEn 
+                ? 'Looking forward to creating product value with "Stunning visual experiences" alongside your team.' 
+                : '期待與您的團隊共同創造具備「Stunning visual experiences」的產品價值。'}
+            </p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 mb-24 pointer-events-auto">
@@ -1529,8 +1578,12 @@ const App = () => {
                   </div>
                   <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors text-left">{opt.desc}</div>
                   <div className="mt-auto text-left">
-                    
-                    <div className="text-[15px] font-black text-slate-800 text-left">{opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}</div>
+                    <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>
+                      {isEn ? 'Details' : '詳細資訊'}
+                    </div>
+                    <div className="text-[15px] font-black text-slate-800 text-left">
+                      {opt.id === 'download' ? (isEn ? "Go to Resume Drive" : "前往履歷雲端資料夾") : opt.value}
+                    </div>
                   </div>
                 </div>
               </motion.a>
@@ -1539,7 +1592,7 @@ const App = () => {
           
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 REN HAO ZHENG · STRATEGIC PM PORTFOLIO V20.6
+            © 2026 REN HAO ZHENG · STRATEGIC PM PORTFOLIO V20.11
           </div>
           
         </div>
