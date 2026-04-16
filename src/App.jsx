@@ -36,7 +36,7 @@ import {
 
 /**
  * ============================================================================
- * SOFTWARE PRODUCT MANAGER PORTFOLIO - REN HAO ZHENG (V20.11)
+ * SOFTWARE PROJECT MANAGER PORTFOLIO - REN HAO ZHENG (V20.11)
  * ----------------------------------------------------------------------------
  * 更新日誌：
  * 1. 修正「全球動力科技」的工作職稱，從專案經理 (Project Manager) 改為產品設計師 (Product Designer)。
@@ -824,7 +824,7 @@ const App = () => {
   
   useEffect(() => {
     const shareImageUrl = "https://lh3.googleusercontent.com/d/1EMGkWw1l7WfzJJ8bp7jx2oXG9P-FrR0i";
-    document.title = "Ren Hao Zheng | Software Product Manager Portfolio";
+    document.title = "Ren Hao Zheng | Software Project Manager Portfolio";
     const setMeta = (property, content) => {
       let meta = document.querySelector(`meta[property='${property}']`);
       if (!meta) {
@@ -1237,7 +1237,7 @@ const App = () => {
                   <span className="text-xs font-black text-[#FF8C42] bg-orange-50 px-4 py-2 rounded-full border border-orange-100 w-fit">2024.10 - Present</span>
                 </div>
                 <h4 className="text-lg font-bold text-slate-800 mb-6 font-black uppercase tracking-wide text-left flex flex-col md:flex-row md:items-center gap-1 md:gap-2">
-                  {isEn ? 'Content Product Manager' : '軟體產品經理'} <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">{isEn ? 'Platform Strategy' : 'Content Product Manager'}</span>
+                  {isEn ? 'Software Project Manager' : '軟體專案經理'} <span className="text-xs text-slate-400 font-medium md:border-l md:border-slate-200 md:pl-3 tracking-widest uppercase">{isEn ? 'Platform Strategy' : 'Software Project Manager'}</span>
                 </h4>
                 
                 <div className="grid grid-cols-1 lg:grid-cols-2 gap-3 md:gap-4 text-left">
