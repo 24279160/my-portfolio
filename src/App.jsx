@@ -36,11 +36,12 @@ import {
 
 /**
  * ============================================================================
- * SOFTWARE PRODUCT MANAGER PORTFOLIO - REN HAO ZHENG (V20.3)
+ * SOFTWARE PRODUCT MANAGER PORTFOLIO - REN HAO ZHENG (V20.6)
  * ----------------------------------------------------------------------------
  * 更新日誌：
- * 1. 修正 V20.2 中 Deep Search 與 Theme 營運模組圖片放反的問題。
- * 2. 保留所有 V20.2 的旗艦級設計（雙生切換卡片、Bus+回歸、高階互動）。
+ * 1. 根據 UX 建議，將 ImageCarousel 的控制點 (Dots) 完全移出圖片容器外 (下方)。
+ * 2. 徹底解決點擊被 Hover 動畫吞噬/干擾的問題，確保 100% 可點擊。
+ * 3. 調整控制點在淺色背景下的高質感配色 (灰色 -> 品牌橘)。
  * ============================================================================
  */
 
@@ -256,6 +257,82 @@ const NeuralMeshBackground = ({ mouse }) => {
   return <canvas ref={canvasRef} className="fixed inset-0 pointer-events-none z-0 opacity-60" />;
 };
 
+// --- ★ 專案圖片輪播組件 (V20.6：控制點移至外部，防干擾機制) ---
+const ImageCarousel = ({ images, isFlagship, highlightMetric }) => {
+  const [index, setIndex] = useState(0);
+
+  useEffect(() => {
+    if (!images || images.length <= 1) return;
+    
+    const timer = setInterval(() => {
+      setIndex((prev) => (prev + 1) % images.length);
+    }, 4000);
+    
+    return () => clearInterval(timer);
+  }, [images, index]);
+
+  if (!images || images.length === 0) return null;
+
+  return (
+    <div className="w-full flex flex-col gap-5">
+      {/* 圖片展示主體 (懸浮互動保留於此容器內) */}
+      <div className={`w-full rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative bg-slate-100 ${isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
+        
+        {/* 這裡統一管理 Hover 的縮放，不會因為換圖而重置 */}
+        <motion.div whileHover={{ scale: 1.15, rotate: -1.5 }} transition={{ duration: 1.2, ease: "easeOut" }} className="w-full h-full relative origin-center">
+          <AnimatePresence>
+            <motion.img
+              key={index}
+              src={images[index]}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.8, ease: "easeInOut" }}
+              className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+            />
+          </AnimatePresence>
+        </motion.div>
+
+        {/* 業務指標 */}
+        <motion.div 
+          initial={{ opacity: 0, y: 15 }}
+          whileInView={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.4 }}
+          className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30 pointer-events-none"
+        >
+          <div className="flex items-center gap-2 mb-1">
+            <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
+            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
+          </div>
+          <div className={`font-black ${isFlagship ? 'text-xl' : 'text-lg'} text-slate-900 tracking-tight`}>
+            {highlightMetric}
+          </div>
+        </motion.div>
+      </div>
+      
+      {/* 底部進度指示器 Dots - 放置於圖片外側，絕對安全不干擾 */}
+      <div className="flex justify-center items-center gap-2.5 w-full h-3 relative z-40 pointer-events-auto">
+        {images.map((_, idx) => (
+          <button 
+            key={idx} 
+            onClick={(e) => {
+              e.preventDefault();
+              e.stopPropagation();
+              setIndex(idx);
+            }}
+            className={`h-2 rounded-full transition-all duration-300 shadow-sm cursor-pointer border ${
+              idx === index 
+                ? 'w-8 bg-[#FF8C42] border-[#FF8C42]' 
+                : 'w-2 bg-slate-200 border-slate-300 hover:bg-slate-300 hover:scale-125'
+            }`} 
+            aria-label={`Switch to image ${idx + 1}`}
+          />
+        ))}
+      </div>
+    </div>
+  );
+};
+
 // --- 互動卡片容器 ---
 const TiltCard = ({ children, className = "" }) => {
   const [rotate, setRotate] = useState({ x: 0, y: 0 });
@@ -350,7 +427,7 @@ const PlayfulDodgeTag = ({ text, tag, color, colorClass = "" }) => {
   );
 };
 
-// --- ★ 創新：ActorCore 雙生模組化整合卡片 ---
+// --- ActorCore 雙生模組化整合卡片 ---
 const CombinedProjectCard = ({ project }) => {
   const [activeIndex, setActiveIndex] = useState(0);
   const activeData = project.subProjects[activeIndex];
@@ -359,21 +436,22 @@ const CombinedProjectCard = ({ project }) => {
     <TiltCard className="bg-white p-8 md:p-10 border border-slate-100 shadow-sm hover:shadow-2xl transition-all duration-500 flex flex-col md:flex-row gap-10 items-start relative overflow-hidden text-left cursor-default rounded-[4rem]">
       
       {/* 圖片區塊 */}
-      <div className="w-full md:w-[48%] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0 aspect-[4/3] bg-slate-100">
-        <AnimatePresence mode="wait">
-          <motion.img
-            key={activeData.img}
-            src={activeData.img}
-            alt={activeData.title}
-            initial={{ opacity: 0, scale: 1.05 }}
-            animate={{ opacity: 1, scale: 1 }}
-            exit={{ opacity: 0 }}
-            whileHover={{ scale: 1.15, rotate: -1.5 }}
-            transition={{ duration: 0.8, ease: "easeOut" }}
-            className="absolute inset-0 w-full h-full object-cover"
-          />
-        </AnimatePresence>
-        <AnimatePresence mode="wait">
+      <div className="w-full md:w-[48%] flex flex-col shrink-0 relative z-30 pointer-events-auto">
+        <div className="w-full rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative aspect-[4/3] bg-slate-100">
+          <motion.div whileHover={{ scale: 1.15, rotate: -1.5 }} transition={{ duration: 1.2, ease: "easeOut" }} className="w-full h-full relative origin-center">
+            <AnimatePresence>
+              <motion.img
+                key={activeData.img}
+                src={activeData.img}
+                alt={activeData.title}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                exit={{ opacity: 0 }}
+                transition={{ duration: 0.8, ease: "easeOut" }}
+                className="absolute inset-0 w-full h-full object-cover pointer-events-none"
+              />
+            </AnimatePresence>
+          </motion.div>
           <motion.div 
             key={activeData.highlightMetric}
             initial={{ opacity: 0, y: 15 }}
@@ -390,7 +468,7 @@ const CombinedProjectCard = ({ project }) => {
               {activeData.highlightMetric}
             </div>
           </motion.div>
-        </AnimatePresence>
+        </div>
       </div>
       
       {/* 內容區塊 */}
@@ -407,7 +485,7 @@ const CombinedProjectCard = ({ project }) => {
             </span>
           </div>
 
-          {/* ★ 切換 Tab (模塊右側 Button) */}
+          {/* 切換 Tab (模塊右側 Button) */}
           <div className="flex items-center gap-1 bg-slate-100/80 p-1.5 rounded-full shadow-inner border border-slate-200/50 w-fit">
             {project.subProjects.map((sub, idx) => (
               <button
@@ -808,11 +886,11 @@ const App = () => {
     { icon: <ShieldCheck size={18} strokeWidth={2.2} className="text-[#2dd4bf]" />, tag: "專案交付", text: <>參與政府專案執行，主導 <span className="font-black text-slate-900 border-b-[2px] border-teal-200">4,000 萬級</span>專案，確保產品符合實際應用場景與驗收標準。</> }
   ];
 
-  // ★ 核心專案區塊：V20.3 修正了 Deep Search 和 Theme 的圖片網址對應
+  // ★ 核心專案區塊
   const projects = [
     {
       isCombined: true,
-      tagLabel: 'REALLUSION PROJECT',
+      tagLabel: 'ACTORCORE PROJECT',
       tagColor: '#FF8C42',
       tagBg: 'bg-orange-50',
       subProjects: [
@@ -824,10 +902,9 @@ const App = () => {
           problem: '發現平台既有的「關鍵字比對」無法處理用戶「描述句查找」的真實意圖，導致搜尋挫折感高、用戶查找成本大，流失潛在轉換。',
           solution: '主導自然語言搜尋 (Deep Search) 專案。分析使用者行為以重定義搜尋邏輯，與前後端團隊密切協作，重構從「搜尋建議」到「結果排序」的完整發現流程。',
           results: [
-            '🚀 搜尋成功率顯著提升約 20%，大幅降低使用者決策成本。',
-            '💡 優化商城推薦內容結構，點擊率 (CTR) 提升約 20%。'
+            '搜尋成功率顯著提升約 20%，大幅降低使用者決策成本。',
+            '優化商城推薦內容結構，點擊率 (CTR) 提升約 20%。'
           ],
-          // V20.3 已修正為指定的 Deep Search 圖片
           img: "https://lh3.googleusercontent.com/d/18StLx2sDg3Nidzgz5RQfp9HXxoacbkt7",
           icon: Search,
           pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
@@ -845,16 +922,15 @@ const App = () => {
           problem: '平台內容原先偏向單純的「素材陳列」，缺乏明確的主題分類導流，難以有效承接行銷活動與商業目標。',
           solution: '建立 Theme Special 營運模組，將單一素材包裝為「主題化解決方案」。規劃五大優惠分類，建立可快速替換的活動版型，打通從曝光到結帳的轉換漏斗。',
           results: [
-            '💰 促銷頁面轉換率 (Conversion Rate) 成功提升約 10-15%，增強行銷團隊營運彈性。',
-            '📦 建立多個主題商品線 (BMX / Gorilla 等)，大幅提升產品結構清晰度。'
+            '促銷頁面轉換率 (Conversion Rate) 成功提升約 10-15%，增強行銷團隊營運彈性。',
+            '建立多個主題商品線，大幅提升產品結構清晰度。'
           ],
-          // V20.3 已修正為指定的 Theme 營運圖片
           img: "https://lh3.googleusercontent.com/d/1kSLZMTtsJ7_8KpGYdkoy8LOXVNkDM_j9",
           icon: Package,
           pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
           highlightMetric: '+15% CVR',
           buttons: [
-            { label: "查看商城", url: "https://actorcore.reallusion.com/3d-motion", icon: <ArrowRight size={14} /> }
+            { label: "查看商城", url: "https://www.reallusion.com/contentstore/category/iclone/animation/motion?nav=Top", icon: <ArrowRight size={14} /> }
           ]
         }
       ]
@@ -866,9 +942,16 @@ const App = () => {
       problem: '商城需要具備高商業價值的旗艦型內容產品，以提升整體客單價，並建立品牌的技術護城河。',
       solution: '識別「高品質風格化動作」的市場缺口，主導開發規格與專案標準化流程 (SOP)。透過精準的內容包裝與跨部門協作，將設計力轉化為實質的商品化策略。',
       results: [
-        '🏆 成功帶動該系列商品蟬聯商城銷售排行榜前三名，創造長尾營收。'
+        '成功帶動該系列商品蟬聯商城銷售排行榜前三名，創造長尾營收。',
+        '使用者內容理解時間下降（估算 20%）。',
+        '商品頁轉換率提升（約 10–15%）',
       ],
-      img: "https://lh3.googleusercontent.com/d/1onA8n6Ydj4qu3SYtZi57ciEXgktuxICE",
+      images: [
+        "https://lh3.googleusercontent.com/d/1g_rcviph46Hh_fzLNZRv5MAFI-NtjbIF",
+        "https://lh3.googleusercontent.com/d/11v9GiF7YCbyLUDYbkMiKpx7F72PlHF17",
+        "https://lh3.googleusercontent.com/d/14jXThIInjc5XE4krE0o-V4njuUgQmmtq",
+        "https://lh3.googleusercontent.com/d/1UJqsUxols3CZBErceDvCEl-4ZhEXeQvA"
+      ],
       icon: Target,
       isFlagship: false,
       pmDeliverables: ['產品策略', '數據分析', '跨部門協作', '營運優化'],
@@ -877,7 +960,7 @@ const App = () => {
       tagColor: '#2dd4bf',
       tagBg: 'bg-teal-50',
       buttons: [
-        { label: "產品展示", url: "https://www.reallusion.com/contentstore/featured/superhero-motion", icon: <ArrowRight size={14} /> }
+        { label: "查看商城", url: "https://www.reallusion.com/contentstore/featured/superhero-motion", icon: <ArrowRight size={14} /> }
       ]
     },
     {
@@ -887,7 +970,8 @@ const App = () => {
       problem: '傳統缺乏高還原度的實境場景，且政府標案需求複雜，需在嚴格時程與技術限制下產出高擬真系統。',
       solution: '統籌 4,000 萬級標案。協作 Asian action movie stunt team 錄製高標準 Stunts，打造具備沉浸感與真實性的場景驗收細節。',
       results: [
-        '✅ 完成 4,000 萬標案驗收，成功導入全台教學體系。'
+        '完成 4,000 萬標案驗收，成功導入全台教學體系。',
+        '建立可擴展 XR 訓練產品架構（支援多場景應用）',
       ],
       img: "https://lh3.googleusercontent.com/d/1OSnyyQldtfyGbqPS_d1fYWA2qpUVfzEG", 
       icon: ShieldCheck,
@@ -909,8 +993,9 @@ const App = () => {
       problem: '原 APP 介面缺乏一致性的設計規範，且部分操作流程對使用者不夠直覺，導致學習成本較高。',
       solution: '獨立完成 Design System 建置與 Prototype 製作，以服務設計思維驅動迭代，重新梳理核心使用流程。',
       results: [
-        '📈 目標受眾滿意度突破 80%。',
-        '🎨 建立可擴充的 UI 元件化規範，大幅提升後續開發效率。'
+        '目標受眾滿意度突破 80%。',
+        '建立可擴充的 UI 元件化規範，大幅提升後續開發效率。',
+        '使用流程簡化（降低查詢步驟）。',
       ],
       img: "https://lh3.googleusercontent.com/d/1GtaMd0eyQrWN2OuGyNe9RmbilG5wvv1P",
       icon: LayoutTemplate,
@@ -921,9 +1006,9 @@ const App = () => {
       tagColor: '#94a3b8',
       tagBg: 'bg-slate-100',
       buttons: [
-        { label: "專案詳細介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
-        { label: "Mockup", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS%2B_3%2F31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
-        { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS--UI?page-id=138%3A1498&node-id=710-73139&viewport=-9828%2C1631%2C0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710%3A73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
+        { label: "專案介紹", url: "https://canva.link/ekmxli49aegakvj", icon: <FileText size={14} /> },
+        { label: "Figma", url: "https://www.figma.com/design/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?node-id=138-1498&t=oLKIHKC0WNmUW8xu-1", icon: <PenTool size={14} /> },
+        { label: "互動原型", url: "https://www.figma.com/proto/Zqj906uj1rMQpcvOwg24LE/BUS+_3/31--UI?page-id=138:1498&node-id=710-73139&viewport=-9828,1631,0.35&t=KCyPi9RaQar0iP42-1&scaling=min-zoom&content-scaling=fixed&starting-point-node-id=710:73139&show-proto-sidebar=1", icon: <Navigation size={14} /> }
       ]
     }
   ];
@@ -1049,9 +1134,7 @@ const App = () => {
             
             <div className="text-slate-500 font-medium leading-relaxed pointer-events-auto space-y-5 mb-8 max-w-2xl text-[15px] md:text-base">
               <p>
-                你好，我是具備產品策略與歐美平台營運經驗的軟體專案經理。曾於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。
-                
-過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。
+                你好，我是具備產品策略與歐美平台營運經驗的軟體專案經理。曾於 Reallusion 負責兩大素材電商之產品優化與商業化策略。我擅長透過數據分析重構搜尋體驗，並與全球開發團隊協作，確保產品交付品質。 過去我也擁有 0→1 XR 跨平台系統的建置經驗，主導政府大型標案落地。我致力於在技術限制與商業目標間精準決策，並曾主導 Bus+ App 使用體驗優化專案，具備跨領域團隊管理與 UI/UX 深度研究能力。
               </p>
             </div>
 
@@ -1190,7 +1273,7 @@ const App = () => {
           <div className="space-y-16 pointer-events-auto">
             {projects.map((project, idx) => {
               
-              // ★ 渲染：ActorCore 雙生切換模組
+              // 渲染：ActorCore 雙生切換模組
               if (project.isCombined) {
                 return <CombinedProjectCard key={idx} project={project} />;
               }
@@ -1204,32 +1287,33 @@ const App = () => {
                   `}
                 >
                   
-                  {/* 專案圖片 */}
-                  <div className={`w-full md:w-[48%] rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative shrink-0 ${project.isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
-                    <div className="w-full h-full overflow-hidden">
-                      <motion.img 
-                        src={project.img} 
-                        alt={project.title} 
-                        whileHover={{ scale: 1.15, rotate: -1.5 }} 
-                        transition={{ duration: 1.2, ease: "easeOut" }} 
-                        className="w-full h-full object-cover" 
-                      />
-                    </div>
-                    
-                    <motion.div 
-                      initial={{ opacity: 0, y: 15 }}
-                      whileInView={{ opacity: 1, y: 0 }}
-                      transition={{ delay: 0.4 }}
-                      className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30 pointer-events-none"
-                    >
-                      <div className="flex items-center gap-2 mb-1">
-                        <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
-                        <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
+                  {/* 專案媒體區塊 (支援輪播或單圖) */}
+                  <div className="w-full md:w-[48%] flex flex-col gap-4 shrink-0 relative z-30 pointer-events-auto">
+                    {project.images ? (
+                      <ImageCarousel images={project.images} isFlagship={project.isFlagship} highlightMetric={project.highlightMetric} />
+                    ) : (
+                      <div className={`w-full rounded-[2.5rem] overflow-hidden shadow-lg border border-slate-200 relative bg-slate-100 ${project.isFlagship ? 'aspect-[4/3]' : 'aspect-[16/10]'}`}>
+                        
+                        <motion.div whileHover={{ scale: 1.15, rotate: -1.5 }} transition={{ duration: 1.2, ease: "easeOut" }} className="w-full h-full relative origin-center">
+                          <img src={project.img} alt={project.title} className="w-full h-full object-cover" />
+                        </motion.div>
+                        
+                        <motion.div 
+                          initial={{ opacity: 0, y: 15 }}
+                          whileInView={{ opacity: 1, y: 0 }}
+                          transition={{ delay: 0.4 }}
+                          className="absolute bottom-4 right-4 bg-white/95 backdrop-blur-md px-5 py-3 rounded-2xl shadow-[0_10px_30px_rgba(0,0,0,0.15)] border border-white/50 z-30 pointer-events-none"
+                        >
+                          <div className="flex items-center gap-2 mb-1">
+                            <div className="w-1.5 h-1.5 rounded-full bg-[#FF8C42] animate-pulse"></div>
+                            <span className="text-xs font-black text-slate-400 uppercase tracking-widest">Business Impact</span>
+                          </div>
+                          <div className={`font-black ${project.isFlagship ? 'text-xl' : 'text-lg'} text-slate-900 tracking-tight`}>
+                            {project.highlightMetric}
+                          </div>
+                        </motion.div>
                       </div>
-                      <div className={`font-black ${project.isFlagship ? 'text-xl' : 'text-lg'} text-slate-900 tracking-tight`}>
-                        {project.highlightMetric}
-                      </div>
-                    </motion.div>
+                    )}
                   </div>
                   
                   {/* 專案內容 */}
@@ -1247,14 +1331,12 @@ const App = () => {
                       {project.title}
                     </h3>
                     
-                    {/* 角色 Role 標籤顯示 */}
                     {project.role && (
                       <div className="text-xs font-black text-slate-400 mb-6 uppercase tracking-widest flex items-center gap-1.5">
                         <Users size={14} className={project.isFlagship ? "text-[#FF8C42]" : "text-[#2dd4bf]"} /> Role: {project.role}
                       </div>
                     )}
                     
-                    {/* PSI 結構渲染區塊 */}
                     <div className="flex flex-col gap-4 mb-6">
                       {project.problem && (
                         <div className="bg-slate-50/50 p-4 rounded-2xl border border-slate-100">
@@ -1276,12 +1358,6 @@ const App = () => {
                           </p>
                         </div>
                       )}
-                      {/* Fallback for regular desc if problem/solution are missing */}
-                      {!project.problem && project.desc && (
-                        <p className="text-slate-500 text-sm leading-relaxed font-medium">
-                          {project.desc}
-                        </p>
-                      )}
                     </div>
 
                     <div className="mb-6 border-b border-slate-50 pb-5">
@@ -1295,7 +1371,6 @@ const App = () => {
                       </div>
                     </div>
                     
-                    {/* Impact 渲染區塊 */}
                     <div className="space-y-3 mb-8">
                       <h4 className="text-[13px] font-black text-slate-900 mb-3 flex items-center gap-1.5">
                         <TrendingUp size={14} className="text-[#FF8C42]" /> Impact / Result
@@ -1314,7 +1389,6 @@ const App = () => {
                       ))}
                     </div>
                     
-                    {/* 按鈕區塊 */}
                     <div className="mt-auto pt-6 border-t border-slate-100 flex flex-col xl:flex-row xl:items-center justify-between gap-6">
                       <div className="flex gap-3 flex-wrap">
                         {project.buttons.map((btn, bIdx) => (
@@ -1403,8 +1477,8 @@ const App = () => {
             <div className="inline-block px-5 py-2 bg-slate-50 rounded-full border border-slate-100 mb-6">
                <span className="text-xs font-black text-slate-400 tracking-[0.4em] uppercase text-center">Professional Network</span>
             </div>
-            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊與資源</h2>
-            <p className="text-slate-400 font-medium text-center">期待與您的團隊共同創造具備「Stunning visual experiences」的產品價值。</p>
+            <h2 className="text-4xl md:text-5xl font-black text-slate-900 mb-5 leading-tight tracking-tighter text-center">聯絡資訊</h2>
+            <p className="text-slate-400 font-medium text-center">期待與您的團隊攜手合作，共同創造產品價值。</p>
           </div>
 
           <div className="flex flex-col lg:flex-row gap-6 mb-24 pointer-events-auto">
@@ -1455,7 +1529,7 @@ const App = () => {
                   </div>
                   <div className="text-sm font-bold text-slate-400 mb-8 leading-relaxed max-w-xs group-hover:text-slate-600 transition-colors text-left">{opt.desc}</div>
                   <div className="mt-auto text-left">
-                    <div className="text-xs font-black uppercase tracking-widest mb-2" style={{ color: opt.color }}>詳細資訊</div>
+                    
                     <div className="text-[15px] font-black text-slate-800 text-left">{opt.id === 'download' ? "前往履歷雲端資料夾" : opt.value}</div>
                   </div>
                 </div>
@@ -1465,7 +1539,7 @@ const App = () => {
           
           <div className="mt-32 text-xs font-black text-slate-300 tracking-[0.9em] uppercase flex flex-col items-center gap-4">
             <div className="w-12 h-[1px] bg-slate-200"></div>
-            © 2026 REN HAO ZHENG · STRATEGIC PM PORTFOLIO V20.3
+            © 2026 REN HAO ZHENG · STRATEGIC PM PORTFOLIO V20.6
           </div>
           
         </div>
